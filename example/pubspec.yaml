@@ -1,5 +1,6 @@
-name: wizardview
-description: An extensible, dependency-free, focus-based implementation of Feature Discovery in Flutter
+name: example
+description: A new Flutter project.
+
 publish_to: "none"
 
 version: 1.0.0+1
@@ -10,6 +11,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  wizardview:
+    path: ../
 
 dev_dependencies:
   flutter_test:

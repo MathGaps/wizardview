@@ -1,6 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:landingpagecreator/wizard_node.dart';
+
+import 'wizard_node.dart';
 
 class WizardScopeNode extends FocusScopeNode {
   void start() {
