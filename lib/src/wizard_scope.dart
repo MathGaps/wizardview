@@ -1,15 +1,11 @@
 import 'package:flutter/cupertino.dart';
+import 'package:wizardview/src/wizard.dart';
 
-import 'wizard_scope_node.dart';
-
-class WizardScope extends FocusScope {
+class WizardScope {
   const WizardScope({
     required Widget child,
     required this.node,
-  }) : super(
-          child: child,
-          node: node,
-        );
+  });
 
-  final WizardScopeNode node;
+  final WizardNode node;
 }
