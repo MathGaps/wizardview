@@ -6,8 +6,8 @@ import 'wizard_scope.dart';
 //! difficult to abstract.
 
 //? We don't actually need to add anything to the Focus classes themselves;
-// objects like FocusTraversalPolicy should be working out-of-the-box, so it's
-// probably a better idea to avoid this approach altogether.
+//? objects like FocusTraversalPolicy should be working out-of-the-box, so it's
+//? probably a better idea to avoid this approach altogether.
 
 /// Represents an indiviudal node in the Feature Discovery.
 ///
