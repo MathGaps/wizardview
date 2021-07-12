@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/diagnostics.dart';
 import 'package:wizardview/src/mixins/wizard_scope_node_mixin.dart';
 import 'package:wizardview/wizardview.dart';
 
@@ -31,18 +30,40 @@ class WizardScope extends StatefulWidget {
 
 class WizardScopeState extends State<WizardScope> {
   final WizardScopeNode _node = WizardScopeNode(debugLabel: 'WizardScope');
+  final List<WizardNode> _history = [];
 
   void start() {
     debugPrint('[WizardScopeState] start()');
 
-    // for (final FocusNode childNode in _node.children) {
-    //   if (childNode is WizardNode) {
-    //     debugPrint('childNode.context.widget: ${childNode.context?.widget}');
-    //     // childNode.context?.findAncestorStateOfType<WizardState>()?.test();
-    //     childNode.
-    //   }
-    //   debugPrint('childNode.parent: ${childNode.parent}');
-    // }
+    /// Handles edge where there are no [WizardNode]'s in the ancestors
+    final List<FocusNode> history = [..._history];
+
+    FocusNode? focussedNode;
+    while ((focussedNode = _node.focusedChild) is! WizardNode) {
+      if (!_node.nextFocus() || history.contains(focussedNode)) {
+        // TODO: #2 Handle end callback
+        // end(); -> dispose, endCallback, etc?
+        return;
+      }
+      history.add(focussedNode!);
+    }
+
+    if (focussedNode != null) {
+      _history.add(focussedNode as WizardNode);
+      debugPrint(
+        'childNode.context.widget: ${focussedNode.context?.findAncestorStateOfType<WizardState>()}',
+      );
+
+      /// extra logic -> beginning the next [WizardNode], handling callbacks
+      /// etc.
+    }
+
+    for (final FocusNode childNode in _node.children) {
+      if (childNode is WizardNode) {
+        childNode.context?.findAncestorStateOfType<WizardState>();
+      }
+      debugPrint('childNode.parent: ${childNode.parent}');
+    }
   }
 
   bool get started => false;
