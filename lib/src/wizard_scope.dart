@@ -9,12 +9,14 @@ class WizardScopeNode = FocusScopeNode with WizardScopeNodeMixin;
 class WizardScope extends StatefulWidget {
   const WizardScope({
     required this.child,
+    this.policy,
     this.onStart,
     this.onEnd,
     Key? key,
   }) : super(key: key);
 
   final Widget child;
+  final FocusTraversalPolicy? policy;
   final VoidCallback? onStart;
   final VoidCallback? onEnd;
 
@@ -65,7 +67,7 @@ class WizardScopeState extends State<WizardScope> {
 
   void prev() {}
 
-  bool get started => false;
+  bool get started => _history.isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +75,12 @@ class WizardScopeState extends State<WizardScope> {
       data: this,
       child: FocusScope(
         node: _node,
-        child: widget.child,
+        skipTraversal: !started,
+        canRequestFocus: started,
+        child: FocusTraversalGroup(
+          policy: widget.policy,
+          child: widget.child,
+        ),
       ),
     );
   }
