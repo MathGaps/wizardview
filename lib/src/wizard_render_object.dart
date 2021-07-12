@@ -51,6 +51,7 @@ class _RenderWizardRenderObject extends RenderBox
       final childParentData = child.parentData! as WizardParentData;
 
       if (childParentData.id == WizardObjectId.background) {
+        // ? Assuming background covers the whole screen, base it at [Offset.zero]
         child.paint(context, Offset.zero);
       } else {
         child.paint(context, offset);
@@ -67,9 +68,6 @@ class _RenderWizardRenderObject extends RenderBox
       constraints: constraints,
       dry: false,
     );
-
-    // ! No need to position the children as it's handled outside of the
-    // ! MultiChildRenderObject
     RenderBox? child = firstChild;
     while (child != null) {
       final childParentData = child.parentData! as WizardParentData;
@@ -99,6 +97,7 @@ class _RenderWizardRenderObject extends RenderBox
         );
       }
 
+      // TODO: Update this to account for the size of the overlay for better hitTesting
       if (childParentData.id == WizardObjectId.child) {
         height = child.size.height;
         width = child.size.width;

@@ -34,8 +34,14 @@ class WizardScopeState extends State<WizardScope> {
   final WizardScopeNode _node = WizardScopeNode(
     debugLabel: 'WizardScope',
   );
+  // TODO: Separate next() from start() since we're using the contents
+  // of `_history` as a basis if the [Wizard] has started, or change
+  // `started` logic
+
   final List<WizardNode> _history = [];
 
+  // TODO: Ensure [WizardScopeNode] already has the focus before iterating
+  // through its children, that way `_node.focusedChild` will not return `null`
   @override
   void initState() {
     super.initState();
@@ -97,6 +103,7 @@ class WizardScopeState extends State<WizardScope> {
       data: this,
       child: FocusScope(
         node: _node,
+        // TODO: Fix `skipTraversal` & `canRequestFocus` flags from [WizardScope] implementation
         // skipTraversal: !started,
         canRequestFocus: true,
         child: FocusTraversalGroup(
