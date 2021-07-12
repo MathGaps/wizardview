@@ -49,7 +49,7 @@ class WizardScopeState extends State<WizardScope> {
   Future<void> next() async {
     debugPrint('[WizardScopeState] next()');
 
-    if (started) {
+    if (!started) {
       widget.onStart?.call();
     } else {
       _focussedNode?.state

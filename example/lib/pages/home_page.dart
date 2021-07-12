@@ -1,5 +1,32 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:wizardview/wizardview.dart';
+
+const alphabet = 'abcdefghijklmnopqrstuvwxyz';
+
+//? I got bored okay
+Color interpolateColour(double n) {
+  if (n < 1 / 6) {
+    final p = n * 6;
+    return Color.fromRGBO(255, (255 * p).toInt(), 0, 1.0);
+  } else if (n < 2 / 6) {
+    final p = (n - 1 / 6) * 6;
+    return Color.fromRGBO((255 * (1 - p)).toInt(), 255, 0, 1.0);
+  } else if (n < 3 / 6) {
+    final p = (n - 2 / 6) * 6;
+    return Color.fromRGBO(0, 255, (255 * p).toInt(), 1.0);
+  } else if (n < 4 / 6) {
+    final p = (n - 3 / 6) * 6;
+    return Color.fromRGBO(0, (255 * (1 - p)).toInt(), 255, 1.0);
+  } else if (n < 5 / 6) {
+    final p = (n - 4 / 6) * 6;
+    return Color.fromRGBO((255 * p).toInt(), 0, 255, 1.0);
+  } else {
+    final p = (n - 5 / 6) * 6;
+    return Color.fromRGBO(255, 0, (255 * (1 - p)).toInt(), 1.0);
+  }
+}
 
 class HomePage extends StatefulWidget {
   HomePage({Key? key, required this.title}) : super(key: key);
@@ -11,76 +38,68 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _counter = 0;
+  late final List<String> shuffledAlphabet;
+
+  @override
+  void initState() {
+    shuffledAlphabet = alphabet.characters.toList()..shuffle();
+    super.initState();
+  }
 
   void _incrementCounter(BuildContext context) {
     WizardScope.of(context).next();
-    setState(() {
-      _counter++;
-    });
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final r = size.width / 4;
     return WizardScope(
       policy: OrderedTraversalPolicy(),
       child: Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
         ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text(
-                'You have pushed the button this many times:',
-              ),
-              FocusTraversalOrder(
-                order: NumericFocusOrder(2),
-                child: Wizard(
-                  child: Text(
-                    '$_counter',
-                    style: Theme.of(context)
-                        .textTheme
-                        .headline4!
-                        .copyWith(color: Colors.red),
+        body: Stack(
+          children: <Widget>[
+            ...List.generate(
+              26,
+              (i) {
+                final c = shuffledAlphabet[i];
+                final double theta = 2 * pi * i / 26,
+                    x = cos(theta),
+                    y = sin(theta);
+                final colour = interpolateColour(i / 26);
+                return Positioned(
+                  top: y * r + size.height / 2,
+                  left: x * r + size.width / 2,
+                  child: FocusTraversalOrder(
+                    order: LexicalFocusOrder(c),
+                    child: Wizard(
+                      child: Text(
+                        c,
+                        style: Theme.of(context)
+                            .textTheme
+                            .headline4!
+                            .copyWith(color: colour),
+                      ),
+                      background: Container(
+                        height: MediaQuery.of(context).size.height,
+                        width: MediaQuery.of(context).size.width,
+                        color: colour.withOpacity(0.1),
+                      ),
+                      overlay: Container(
+                        color: colour.withOpacity(0.5),
+                        height: 50,
+                        width: 50,
+                      ),
+                    ),
                   ),
-                  background: Container(
-                    height: MediaQuery.of(context).size.height,
-                    width: MediaQuery.of(context).size.width,
-                    color: Colors.blue,
-                  ),
-                  overlay: Container(
-                    color: Colors.yellow.withOpacity(0.5),
-                    height: 50,
-                    width: 50,
-                  ),
-                ),
-              ),
-              FocusTraversalOrder(
-                order: NumericFocusOrder(1),
-                child: Wizard(
-                  child: Text(
-                    '$_counter + 1',
-                    style: Theme.of(context)
-                        .textTheme
-                        .headline4!
-                        .copyWith(color: Colors.green),
-                  ),
-                  background: Container(
-                    height: MediaQuery.of(context).size.height,
-                    width: MediaQuery.of(context).size.width,
-                    color: Colors.red,
-                  ),
-                  overlay: Container(
-                    color: Colors.yellow.withOpacity(0.2),
-                    height: 50,
-                    width: 300,
-                  ),
-                ),
-              ),
-            ],
-          ),
+                );
+              },
+            ),
+          ],
         ),
         floatingActionButton: Builder(
           builder: (context) => FloatingActionButton(

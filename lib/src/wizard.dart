@@ -79,6 +79,7 @@ class WizardState extends State<Wizard> {
 
   void onNodeEnd() {
     widget.onNodeEnd?.call();
+    print('onNodeEnd');
 
     setState(() => active = false);
   }
@@ -86,7 +87,6 @@ class WizardState extends State<Wizard> {
   @override
   Widget build(BuildContext context) {
     final bool started = WizardScope.of(context).started;
-    print(active);
 
     /// * Animations are a bit cooked. They're rendering extremely slowly
     return WizardRenderObject(
