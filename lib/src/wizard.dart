@@ -25,6 +25,9 @@ extension WizardNodeX on WizardNode {
   WizardState? get state => context?.findAncestorStateOfType<WizardState>();
 }
 
+//TODO: How do we instantiate this
+typedef OverlayBuilder = Widget Function(Offset offset, Size size);
+
 class Wizard extends StatefulWidget {
   const Wizard({
     Key? key,

@@ -46,21 +46,16 @@ class WizardScopeState extends State<WizardScope> {
 
   final List<WizardNode> _history = [];
 
-  // TODO: Ensure [WizardScopeNode] already has the focus before iterating
-  // through its children, that way `_node.focusedChild` will not return `null`
-  @override
-  void initState() {
-    super.initState();
-
-    _node.requestFocus();
-  }
-
   Future<void> next() async {
     debugPrint('[WizardScopeState] next()');
 
-    _focussedNode?.state
-      ?..active = false
-      ..onNodeEnd();
+    if (started) {
+      widget.onStart?.call();
+    } else {
+      _focussedNode?.state
+        ?..active = false
+        ..onNodeEnd();
+    }
 
     /// Handles edge where there are no [WizardNode]'s in the ancestors
     final List<FocusNode> history = [..._history];
@@ -71,6 +66,8 @@ class WizardScopeState extends State<WizardScope> {
     debugPrint(
         '[WizardScopeState] _node.children.first: ${_node.children.first}');
 
+    // Ensures [WizardScopeNode] already has the focus before iterating
+    // through its children, that way `_node.focusedChild` will not return `null`.
     if (!_node.hasFocus) {
       _node.requestFocus();
 
@@ -116,6 +113,7 @@ class WizardScopeState extends State<WizardScope> {
     _node.unfocus();
     _focussedNode?.unfocus();
     _focussedNode?.state?.onNodeEnd();
+    widget.onEnd?.call();
   }
 
   bool get started => _history.isNotEmpty;
