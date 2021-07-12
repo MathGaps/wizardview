@@ -95,7 +95,10 @@ class WizardState extends State<Wizard> {
       ),
       overlay: WizardParentDataWidget(
         id: WizardObjectId.overlay,
-        child: widget.overlay ?? Container(),
+        child: AnimatedOpacity(
+            opacity: showBackground ? 1 : 0,
+            duration: Duration(seconds: 1),
+            child: widget.overlay ?? Container()),
       ),
     );
   }
