@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:wizardview/src/mixins/wizard_node_mixin.dart';
+import 'package:wizardview/src/wizard_render_object.dart';
 import 'wizard_scope.dart';
 
 //! Instead of implementing all the Focus classes + widgets, maybe we should
@@ -13,8 +15,9 @@ import 'wizard_scope.dart';
 ///
 /// [WizardNode] manages a [FocusNode], which, when instantiated; should be a
 /// descendant of a [WizardScope].
-class WizardNode extends StatelessWidget {
-  const WizardNode({
+
+class Wizard extends StatelessWidget {
+  const Wizard({
     required this.child,
     this.focusNode,
     this.background,
@@ -26,16 +29,24 @@ class WizardNode extends StatelessWidget {
   final Widget? background;
   final Widget? overlay;
 
-  /// Parameters passed down to [Focus]. The lifecycle of a [focusNode] should
+  /// Parameters passed down to [Focus]. The lifecycle of a [FocusNode] should
   /// be managed inside the [Widget] it's instantiated in. If a [FocusNode] is
   /// not provided, [Focus] will implicitly create and manage one.
-  final FocusNode? focusNode;
+  final WizardNode? focusNode;
 
   @override
   Widget build(BuildContext context) {
-    return Focus(
-      focusNode: focusNode,
-      child: child,
+    return WizardRenderObject(
+      child: Focus(
+        focusNode: focusNode,
+        child: child,
+      ),
     );
   }
 }
+
+class WizardNode = FocusNode with WizardNodeMixin;
+
+// Callbacks
+
+// Stack/MultiC
