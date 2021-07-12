@@ -23,6 +23,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return WizardScope(
+      policy: OrderedTraversalPolicy(),
       child: Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
@@ -34,42 +35,48 @@ class _HomePageState extends State<HomePage> {
               Text(
                 'You have pushed the button this many times:',
               ),
-              Wizard(
-                child: Text(
-                  '$_counter',
-                  style: Theme.of(context)
-                      .textTheme
-                      .headline4!
-                      .copyWith(color: Colors.red),
-                ),
-                background: Container(
-                  height: MediaQuery.of(context).size.height,
-                  width: MediaQuery.of(context).size.width,
-                  color: Colors.blue,
-                ),
-                overlay: Container(
-                  color: Colors.yellow.withOpacity(0.5),
-                  height: 50,
-                  width: 50,
+              FocusTraversalOrder(
+                order: NumericFocusOrder(2),
+                child: Wizard(
+                  child: Text(
+                    '$_counter',
+                    style: Theme.of(context)
+                        .textTheme
+                        .headline4!
+                        .copyWith(color: Colors.red),
+                  ),
+                  background: Container(
+                    height: MediaQuery.of(context).size.height,
+                    width: MediaQuery.of(context).size.width,
+                    color: Colors.blue,
+                  ),
+                  overlay: Container(
+                    color: Colors.yellow.withOpacity(0.5),
+                    height: 50,
+                    width: 50,
+                  ),
                 ),
               ),
-              Wizard(
-                child: Text(
-                  '$_counter + 1',
-                  style: Theme.of(context)
-                      .textTheme
-                      .headline4!
-                      .copyWith(color: Colors.green),
-                ),
-                background: Container(
-                  height: MediaQuery.of(context).size.height,
-                  width: MediaQuery.of(context).size.width,
-                  color: Colors.red,
-                ),
-                overlay: Container(
-                  color: Colors.yellow.withOpacity(0.2),
-                  height: 50,
-                  width: 300,
+              FocusTraversalOrder(
+                order: NumericFocusOrder(1),
+                child: Wizard(
+                  child: Text(
+                    '$_counter + 1',
+                    style: Theme.of(context)
+                        .textTheme
+                        .headline4!
+                        .copyWith(color: Colors.green),
+                  ),
+                  background: Container(
+                    height: MediaQuery.of(context).size.height,
+                    width: MediaQuery.of(context).size.width,
+                    color: Colors.red,
+                  ),
+                  overlay: Container(
+                    color: Colors.yellow.withOpacity(0.2),
+                    height: 50,
+                    width: 300,
+                  ),
                 ),
               ),
             ],
