@@ -54,7 +54,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final r = size.width / 4;
     return WizardScope(
       policy: OrderedTraversalPolicy(),
       child: Scaffold(
@@ -67,10 +66,13 @@ class _HomePageState extends State<HomePage> {
               26,
               (i) {
                 final c = shuffledAlphabet[i];
-                final double theta = 2 * pi * i / 26,
+                final double p = i / 26,
+                    r = size.width / 5 - size.width / 3 * sin(2 * pi * p),
+                    theta = 2 * pi * p,
                     x = cos(theta),
                     y = sin(theta);
-                final colour = interpolateColour(i / 26);
+                final colour = interpolateColour(p);
+                final constrastingColour = interpolateColour(1 - p);
                 return Positioned(
                   top: y * r + size.height / 2,
                   left: x * r + size.width / 2,
@@ -87,10 +89,10 @@ class _HomePageState extends State<HomePage> {
                       background: Container(
                         height: MediaQuery.of(context).size.height,
                         width: MediaQuery.of(context).size.width,
-                        color: colour.withOpacity(0.1),
+                        color: constrastingColour.withOpacity(0.1),
                       ),
                       overlay: Container(
-                        color: colour.withOpacity(0.5),
+                        color: constrastingColour.withOpacity(0.5),
                         height: 50,
                         width: 50,
                       ),
