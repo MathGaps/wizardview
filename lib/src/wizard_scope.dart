@@ -8,10 +8,14 @@ class WizardScopeNode = FocusScopeNode with WizardScopeNodeMixin;
 class WizardScope extends StatefulWidget {
   const WizardScope({
     required this.child,
+    this.onStart,
+    this.onEnd,
     Key? key,
   }) : super(key: key);
 
   final Widget child;
+  final VoidCallback? onStart;
+  final VoidCallback? onEnd;
 
   static WizardScopeState of(BuildContext context) {
     return (context.dependOnInheritedWidgetOfExactType<_InheritedWizardScope>()
@@ -26,8 +30,8 @@ class WizardScope extends StatefulWidget {
 class WizardScopeState extends State<WizardScope> {
   final WizardScopeNode node = WizardScopeNode(debugLabel: 'WizardScope');
 
-  void testInheritance() {
-    print('hello there');
+  void start() {
+    debugPrint('[WizardScopeState] start()');
   }
 
   @override
