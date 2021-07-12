@@ -1,11 +1,15 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
+///! This is a Widget, not a RenderObject
 class WizardRenderObject extends MultiChildRenderObjectWidget {
   WizardRenderObject({
     required Widget child,
     required Widget background,
     required Widget overlay,
+    required this.active,
     Key? key,
   }) : super(
           key: key,
@@ -16,9 +20,19 @@ class WizardRenderObject extends MultiChildRenderObjectWidget {
           ],
         );
 
+  final bool active;
+
   @override
   _RenderWizardRenderObject createRenderObject(BuildContext context) {
-    return _RenderWizardRenderObject();
+    return _RenderWizardRenderObject(active: active);
+  }
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    _RenderWizardRenderObject renderObject,
+  ) {
+    renderObject..active = active;
   }
 }
 
@@ -36,6 +50,15 @@ class _RenderWizardRenderObject extends RenderBox
     with
         ContainerRenderObjectMixin<RenderBox, WizardParentData>,
         RenderBoxContainerDefaultsMixin<RenderBox, WizardParentData> {
+  _RenderWizardRenderObject({required bool active}) : _active = active;
+
+  bool _active;
+  bool get active => _active;
+  set active(bool active) {
+    if (_active == active) return;
+    _active = active;
+  }
+
   /// ParentData
   @override
   void setupParentData(covariant RenderObject child) {
@@ -100,10 +123,9 @@ class _RenderWizardRenderObject extends RenderBox
         );
       }
 
-      // TODO: Update this to account for the size of the overlay for better hitTesting
-      if (childParentData.id == WizardObjectId.child) {
-        height = child.size.height;
-        width = child.size.width;
+      if (childParentData.id != WizardObjectId.background) {
+        width = max(child.size.width, width);
+        height = max(child.size.height, height);
       }
 
       child = childParentData.nextSibling;

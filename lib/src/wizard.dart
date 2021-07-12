@@ -47,7 +47,7 @@ class Wizard extends StatefulWidget {
 class WizardState extends State<Wizard> {
   late final WizardNode _wizardNode;
   // ! Test
-  bool showBackground = false;
+  bool active = false;
 
   @override
   void initState() {
@@ -67,9 +67,7 @@ class WizardState extends State<Wizard> {
   void onNodeStart() {
     widget.onNodeStart?.call();
 
-    setState(() {
-      showBackground = true;
-    });
+    setState(() => active = true);
   }
 
   @override
@@ -77,6 +75,7 @@ class WizardState extends State<Wizard> {
     final bool started = WizardScope.of(context).started;
 
     return WizardRenderObject(
+      active: active,
       child: WizardParentDataWidget(
         id: WizardObjectId.child,
         child: Focus(
@@ -89,16 +88,18 @@ class WizardState extends State<Wizard> {
       background: WizardParentDataWidget(
         id: WizardObjectId.background,
         child: AnimatedOpacity(
-            opacity: showBackground ? 1 : 0,
-            duration: Duration(seconds: 1),
-            child: widget.background ?? Container()),
+          opacity: active ? 1 : 0,
+          duration: Duration(seconds: 1),
+          child: widget.background ?? Container(),
+        ),
       ),
       overlay: WizardParentDataWidget(
         id: WizardObjectId.overlay,
         child: AnimatedOpacity(
-            opacity: showBackground ? 1 : 0,
-            duration: Duration(seconds: 1),
-            child: widget.overlay ?? Container()),
+          opacity: active ? 1 : 0,
+          duration: Duration(seconds: 1),
+          child: widget.overlay ?? Container(),
+        ),
       ),
     );
   }

@@ -38,6 +38,9 @@ class WizardScopeState extends State<WizardScope> {
   // of `_history` as a basis if the [Wizard] has started, or change
   // `started` logic
 
+  // How come this is a problem? When the showcase finishes, we could simply
+  // do _history.clear(), so that `started` goes back to `false`
+
   final List<WizardNode> _history = [];
 
   // TODO: Ensure [WizardScopeNode] already has the focus before iterating
@@ -49,7 +52,7 @@ class WizardScopeState extends State<WizardScope> {
     _node.requestFocus();
   }
 
-  void next() {
+  Future<void> next() async {
     debugPrint('[WizardScopeState] next()');
 
     /// Handles edge where there are no [WizardNode]'s in the ancestors
@@ -61,8 +64,12 @@ class WizardScopeState extends State<WizardScope> {
     debugPrint(
         '[WizardScopeState] _node.children.first: ${_node.children.first}');
 
-    _node.requestFocus();
-    _node.hasFocus;
+    if (!_node.hasFocus) {
+      _node.requestFocus();
+
+      /// ? You'll laugh at this one. I mean shit how else do you wait for a frame?
+      await Future.delayed(Duration(seconds: 0));
+    }
     debugPrint('[WizardScopeState] _node.hasFocus: ${_node.hasFocus}');
 
     FocusNode? focussedNode;
@@ -72,10 +79,9 @@ class WizardScopeState extends State<WizardScope> {
         // end(); -> dispose, endCallback, etc?
         return;
       }
-
-      history.add(focussedNode!);
     }
 
+    history.add(focussedNode!);
     debugPrint('[WizardScopeState] first WizardNode found');
 
     /// This can be asserted, as otherwise the loop would break or the `nextFocus()`
