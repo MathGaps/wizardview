@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/src/foundation/diagnostics.dart';
 import 'package:wizardview/src/mixins/wizard_scope_node_mixin.dart';
-import 'package:wizardview/src/wizard.dart';
+import 'package:wizardview/wizardview.dart';
 
 //TODO: #1 Documentation on WizardScope
 
@@ -34,14 +35,17 @@ class WizardScopeState extends State<WizardScope> {
   void start() {
     debugPrint('[WizardScopeState] start()');
 
-    for (final FocusNode childNode in _node.children) {
-      debugPrint('childNode.context.widget: ${childNode.context?.widget}');
-
-      // if (childNode is WizardNode) {
-      //   debugPrint('childNode.context.widget: ${childNode.context?.widget}');
-      // }
-    }
+    // for (final FocusNode childNode in _node.children) {
+    //   if (childNode is WizardNode) {
+    //     debugPrint('childNode.context.widget: ${childNode.context?.widget}');
+    //     // childNode.context?.findAncestorStateOfType<WizardState>()?.test();
+    //     childNode.
+    //   }
+    //   debugPrint('childNode.parent: ${childNode.parent}');
+    // }
   }
+
+  bool get started => false;
 
   @override
   Widget build(BuildContext context) {

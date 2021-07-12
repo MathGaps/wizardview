@@ -41,10 +41,10 @@ class Wizard extends StatefulWidget {
   final VoidCallback? onNodeEnd;
 
   @override
-  _WizardState createState() => _WizardState();
+  WizardState createState() => WizardState();
 }
 
-class _WizardState extends State<Wizard> {
+class WizardState extends State<Wizard> {
   late final WizardNode _wizardNode;
 
   @override
@@ -63,12 +63,16 @@ class _WizardState extends State<Wizard> {
 
   @override
   Widget build(BuildContext context) {
+    final bool started = WizardScope.of(context).started;
+
     return WizardRenderObject(
       child: WizardParentDataWidget(
         id: WizardObjectId.child,
         child: Focus(
           focusNode: _wizardNode,
           child: widget.child,
+          canRequestFocus: started,
+          skipTraversal: !started,
         ),
       ),
       background: WizardParentDataWidget(
