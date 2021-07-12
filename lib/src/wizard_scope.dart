@@ -31,14 +31,33 @@ class WizardScope extends StatefulWidget {
 }
 
 class WizardScopeState extends State<WizardScope> {
-  final WizardScopeNode _node = WizardScopeNode(debugLabel: 'WizardScope');
+  final WizardScopeNode _node = WizardScopeNode(
+    debugLabel: 'WizardScope',
+  );
   final List<WizardNode> _history = [];
 
+  @override
+  void initState() {
+    super.initState();
+
+    _node.requestFocus();
+  }
+
   void next() {
-    debugPrint('[WizardScopeState] start()');
+    debugPrint('[WizardScopeState] next()');
 
     /// Handles edge where there are no [WizardNode]'s in the ancestors
     final List<FocusNode> history = [..._history];
+
+    debugPrint(
+        '[WizardScopeState] _node.traversalChildren: ${_node.traversalChildren}');
+    debugPrint('[WizardScopeState] _node.focusedChild: ${_node.focusedChild}');
+    debugPrint(
+        '[WizardScopeState] _node.children.first: ${_node.children.first}');
+
+    _node.requestFocus();
+    _node.hasFocus;
+    debugPrint('[WizardScopeState] _node.hasFocus: ${_node.hasFocus}');
 
     FocusNode? focussedNode;
     while ((focussedNode = _node.focusedChild) is! WizardNode) {
@@ -47,8 +66,11 @@ class WizardScopeState extends State<WizardScope> {
         // end(); -> dispose, endCallback, etc?
         return;
       }
+
       history.add(focussedNode!);
     }
+
+    debugPrint('[WizardScopeState] first WizardNode found');
 
     /// This can be asserted, as otherwise the loop would break or the `nextFocus()`
     /// would return `false` => focussedNode == null.
@@ -59,7 +81,7 @@ class WizardScopeState extends State<WizardScope> {
         focussedNode.context!.findAncestorStateOfType<WizardState>()!;
     debugPrint('childNode.context.widget: $wizard');
 
-    wizard.widget..onNodeStart?.call();
+    wizard..onNodeStart();
 
     /// extra logic -> beginning the next [WizardNode], handling callbacks
     /// etc.
@@ -75,8 +97,8 @@ class WizardScopeState extends State<WizardScope> {
       data: this,
       child: FocusScope(
         node: _node,
-        skipTraversal: !started,
-        canRequestFocus: started,
+        // skipTraversal: !started,
+        canRequestFocus: true,
         child: FocusTraversalGroup(
           policy: widget.policy,
           child: widget.child,
@@ -85,12 +107,6 @@ class WizardScopeState extends State<WizardScope> {
     );
   }
 }
-
-// Callbacks
-
-// InheritedNotifier - expose WizardScope to context
-
-// Background
 
 class _InheritedWizardScope extends InheritedNotifier {
   _InheritedWizardScope({

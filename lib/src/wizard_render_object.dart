@@ -46,7 +46,18 @@ class _RenderWizardRenderObject extends RenderBox
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    defaultPaint(context, offset);
+    RenderBox? child = firstChild;
+    while (child != null) {
+      final childParentData = child.parentData! as WizardParentData;
+
+      if (childParentData.id == WizardObjectId.background) {
+        child.paint(context, Offset.zero);
+      } else {
+        child.paint(context, offset);
+      }
+
+      child = childParentData.nextSibling;
+    }
   }
 
   /// Layout

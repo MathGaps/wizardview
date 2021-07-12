@@ -14,7 +14,7 @@ class _HomePageState extends State<HomePage> {
   int _counter = 0;
 
   void _incrementCounter(BuildContext context) {
-    WizardScope.of(context).start();
+    WizardScope.of(context).next();
     setState(() {
       _counter++;
     });
@@ -34,26 +34,23 @@ class _HomePageState extends State<HomePage> {
               Text(
                 'You have pushed the button this many times:',
               ),
-              Container(
-                color: Colors.black,
-                child: Wizard(
-                  child: Text(
-                    '$_counter',
-                    style: Theme.of(context)
-                        .textTheme
-                        .headline4!
-                        .copyWith(color: Colors.red),
-                  ),
-                  background: Container(
-                    height: MediaQuery.of(context).size.height,
-                    width: MediaQuery.of(context).size.width,
-                    color: Colors.black12,
-                  ),
-                  overlay: Container(
-                    color: Colors.yellow.withOpacity(0.5),
-                    height: 50,
-                    width: 50,
-                  ),
+              Wizard(
+                child: Text(
+                  '$_counter',
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline4!
+                      .copyWith(color: Colors.red),
+                ),
+                background: Container(
+                  height: MediaQuery.of(context).size.height,
+                  width: MediaQuery.of(context).size.width,
+                  color: Colors.blue,
+                ),
+                overlay: Container(
+                  color: Colors.yellow.withOpacity(0.5),
+                  height: 50,
+                  width: 50,
                 ),
               ),
             ],
