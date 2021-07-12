@@ -83,7 +83,9 @@ class WizardState extends State<Wizard> {
   @override
   Widget build(BuildContext context) {
     final bool started = WizardScope.of(context).started;
+    print(active);
 
+    /// * Animations are a bit cooked. They're rendering extremely slowly
     return WizardRenderObject(
       active: active,
       child: WizardParentDataWidget(
@@ -97,19 +99,11 @@ class WizardState extends State<Wizard> {
       ),
       background: WizardParentDataWidget(
         id: WizardObjectId.background,
-        child: AnimatedOpacity(
-          opacity: active ? 1 : 0,
-          duration: Duration(seconds: 1),
-          child: widget.background ?? Container(),
-        ),
+        child: widget.background ?? Container(),
       ),
       overlay: WizardParentDataWidget(
         id: WizardObjectId.overlay,
-        child: AnimatedOpacity(
-          opacity: active ? 1 : 0,
-          duration: Duration(seconds: 1),
-          child: widget.overlay ?? Container(),
-        ),
+        child: widget.overlay ?? Container(),
       ),
     );
   }

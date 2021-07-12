@@ -53,6 +53,25 @@ class _HomePageState extends State<HomePage> {
                   width: 50,
                 ),
               ),
+              Wizard(
+                child: Text(
+                  '$_counter + 1',
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline4!
+                      .copyWith(color: Colors.green),
+                ),
+                background: Container(
+                  height: MediaQuery.of(context).size.height,
+                  width: MediaQuery.of(context).size.width,
+                  color: Colors.red,
+                ),
+                overlay: Container(
+                  color: Colors.yellow.withOpacity(0.2),
+                  height: 50,
+                  width: 300,
+                ),
+              ),
             ],
           ),
         ),

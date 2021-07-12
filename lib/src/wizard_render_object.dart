@@ -123,7 +123,9 @@ class _RenderWizardRenderObject extends RenderBox
         );
       }
 
-      if (childParentData.id != WizardObjectId.background) {
+      /// ! Need to think about this. If we change the size beyond the size of the child,
+      /// it'll cause inconsistencies with how the child is rendered
+      if (childParentData.id == WizardObjectId.child) {
         width = max(child.size.width, width);
         height = max(child.size.height, height);
       }

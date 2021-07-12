@@ -58,6 +58,10 @@ class WizardScopeState extends State<WizardScope> {
   Future<void> next() async {
     debugPrint('[WizardScopeState] next()');
 
+    _focussedNode?.state
+      ?..active = false
+      ..onNodeEnd();
+
     /// Handles edge where there are no [WizardNode]'s in the ancestors
     final List<FocusNode> history = [..._history];
 
@@ -84,7 +88,7 @@ class WizardScopeState extends State<WizardScope> {
     } while (focussedNode is! WizardNode);
     _history.add(_focussedNode = focussedNode);
 
-    debugPrint('[WizardScopeState] first WizardNode found');
+    debugPrint('[WizardScopeState] WizardNode ${_history.length} found');
 
     focussedNode.state!.onNodeStart();
   }
