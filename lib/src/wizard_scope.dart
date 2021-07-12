@@ -82,26 +82,28 @@ class WizardScopeState extends State<WizardScope> {
         return end();
       }
     } while (focussedNode is! WizardNode);
+    _history.add(_focussedNode = focussedNode);
 
     debugPrint('[WizardScopeState] first WizardNode found');
 
-    /// This can be asserted, as otherwise the loop would break or the `nextFocus()`
-    /// would return `false` => focussedNode == null.
-    _focussedNode = focussedNode as WizardNode;
-    _history.add(focussedNode);
-
-    final wizard =
-        focussedNode.context!.findAncestorStateOfType<WizardState>()!;
-    debugPrint('childNode.context.widget: $wizard');
-
-    wizard.onNodeStart();
-
-    /// extra logic -> beginning the next [WizardNode], handling callbacks
-    /// etc.
+    focussedNode.state!.onNodeStart();
   }
 
+  /// * Could previous change depending on the FocusTraversal? Although, maybe
+  /// if it does this isn't the expected behaviour. (I'm thinking of the scenario
+  /// in which the position of the node changes, in such a way that the
+  /// [ReadingOrderTraversalPolicy] changes. Eh fuck it)
   void prev() {
-    _history.removeLast();
+    if (_history.isEmpty) return;
+
+    _history.removeLast().state
+      ?..active = false
+      ..onNodeEnd();
+    if (_history.isEmpty) end();
+
+    _history.last.state
+      ?..active = true
+      ..onNodeStart();
   }
 
   void end() {
