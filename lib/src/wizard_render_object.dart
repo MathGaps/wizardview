@@ -74,10 +74,10 @@ class _RenderWizardRenderObject extends RenderBox
       final childParentData = child.parentData! as WizardParentData;
 
       // ? Just for the snippets
-      if (childParentData.id == WizardObjectId.background) {
+      if (childParentData.id == WizardObjectId.background && active) {
         // ? Assuming background covers the whole screen, base it at [Offset.zero]
         child.paint(context, Offset.zero);
-      } else if (childParentData.id == WizardObjectId.overlay) {
+      } else if (childParentData.id == WizardObjectId.overlay && active) {
         child.paint(context, offset - Offset(12.5, 12.5));
       } else {
         child.paint(context, offset);
