@@ -21,6 +21,10 @@ import 'wizard_scope.dart';
 
 class WizardNode = FocusNode with WizardNodeMixin;
 
+extension WizardNodeX on WizardNode {
+  WizardState? get state => context?.findAncestorStateOfType<WizardState>();
+}
+
 class Wizard extends StatefulWidget {
   const Wizard({
     Key? key,
@@ -68,6 +72,12 @@ class WizardState extends State<Wizard> {
     widget.onNodeStart?.call();
 
     setState(() => active = true);
+  }
+
+  void onNodeEnd() {
+    widget.onNodeEnd?.call();
+
+    setState(() => active = false);
   }
 
   @override

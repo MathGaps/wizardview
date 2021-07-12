@@ -34,6 +34,9 @@ class WizardScopeState extends State<WizardScope> {
   final WizardScopeNode _node = WizardScopeNode(
     debugLabel: 'WizardScope',
   );
+
+  WizardNode? _focussedNode;
+
   // TODO: Separate next() from start() since we're using the contents
   // of `_history` as a basis if the [Wizard] has started, or change
   // `started` logic
@@ -73,33 +76,40 @@ class WizardScopeState extends State<WizardScope> {
     debugPrint('[WizardScopeState] _node.hasFocus: ${_node.hasFocus}');
 
     FocusNode? focussedNode;
-    while ((focussedNode = _node.focusedChild) is! WizardNode) {
-      if (!_node.nextFocus() || history.contains(focussedNode)) {
-        // TODO: #2 Handle end callback
-        // end(); -> dispose, endCallback, etc?
-        return;
+    do {
+      if (!_node.nextFocus() ||
+          history.contains(focussedNode = _node.focusedChild)) {
+        return end();
       }
-    }
+    } while (focussedNode is! WizardNode);
 
-    history.add(focussedNode!);
     debugPrint('[WizardScopeState] first WizardNode found');
 
     /// This can be asserted, as otherwise the loop would break or the `nextFocus()`
     /// would return `false` => focussedNode == null.
-    focussedNode = focussedNode as WizardNode;
+    _focussedNode = focussedNode as WizardNode;
     _history.add(focussedNode);
 
     final wizard =
         focussedNode.context!.findAncestorStateOfType<WizardState>()!;
     debugPrint('childNode.context.widget: $wizard');
 
-    wizard..onNodeStart();
+    wizard.onNodeStart();
 
     /// extra logic -> beginning the next [WizardNode], handling callbacks
     /// etc.
   }
 
-  void prev() {}
+  void prev() {
+    _history.removeLast();
+  }
+
+  void end() {
+    debugPrint('[WizardScopeState] end()');
+    _history.clear();
+    _node.unfocus();
+    _focussedNode?.state?.onNodeEnd();
+  }
 
   bool get started => _history.isNotEmpty;
 
