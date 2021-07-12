@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wizardview/src/mixins/wizard_scope_node_mixin.dart';
+import 'package:wizardview/src/wizard.dart';
 
 //TODO: #1 Documentation on WizardScope
 
@@ -28,10 +29,18 @@ class WizardScope extends StatefulWidget {
 }
 
 class WizardScopeState extends State<WizardScope> {
-  final WizardScopeNode node = WizardScopeNode(debugLabel: 'WizardScope');
+  final WizardScopeNode _node = WizardScopeNode(debugLabel: 'WizardScope');
 
   void start() {
     debugPrint('[WizardScopeState] start()');
+
+    for (final FocusNode childNode in _node.children) {
+      debugPrint('childNode.context.widget: ${childNode.context?.widget}');
+
+      // if (childNode is WizardNode) {
+      //   debugPrint('childNode.context.widget: ${childNode.context?.widget}');
+      // }
+    }
   }
 
   @override
@@ -39,7 +48,7 @@ class WizardScopeState extends State<WizardScope> {
     return _InheritedWizardScope(
       data: this,
       child: FocusScope(
-        node: node,
+        node: _node,
         child: widget.child,
       ),
     );

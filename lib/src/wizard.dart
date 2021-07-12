@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:wizardview/src/mixins/wizard_node_mixin.dart';
+import 'package:wizardview/src/wizard_parent_data_widget.dart';
 import 'package:wizardview/src/wizard_render_object.dart';
 
 import 'wizard_scope.dart';
@@ -44,25 +45,42 @@ class Wizard extends StatefulWidget {
 }
 
 class _WizardState extends State<Wizard> {
-  final WizardNode _wizardNode = WizardNode();
+  late final WizardNode _wizardNode;
 
   @override
   void initState() {
     super.initState();
 
-    // OR instantiate here _wizardNode = WizardNode();
+    _wizardNode = WizardNode(debugLabel: 'WizardNode');
+  }
+
+  @override
+  void dispose() {
+    _wizardNode.dispose();
+
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Focus(
-      focusNode: _wizardNode,
-      // or focusNode: WizardNode()
-      child: widget.child,
+    return WizardRenderObject(
+      child: WizardParentDataWidget(
+        id: WizardObjectId.child,
+        child: Focus(
+          focusNode: _wizardNode,
+          child: widget.child,
+        ),
+      ),
+      background: WizardParentDataWidget(
+        id: WizardObjectId.background,
+        child: widget.background ?? Container(),
+      ),
+      overlay: WizardParentDataWidget(
+        id: WizardObjectId.overlay,
+        child: widget.overlay ?? Container(),
+      ),
     );
   }
 }
-
-// Callbacks
 
 // Stack/MultiC

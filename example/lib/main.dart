@@ -51,10 +51,26 @@ class _MyHomePageState extends State<MyHomePage> {
               Text(
                 'You have pushed the button this many times:',
               ),
-              Wizard(
-                child: Text(
-                  '$_counter',
-                  style: Theme.of(context).textTheme.headline4,
+              Container(
+                color: Colors.black,
+                child: Wizard(
+                  child: Text(
+                    '$_counter',
+                    style: Theme.of(context)
+                        .textTheme
+                        .headline4!
+                        .copyWith(color: Colors.red),
+                  ),
+                  background: Container(
+                    height: MediaQuery.of(context).size.height,
+                    width: MediaQuery.of(context).size.width,
+                    color: Colors.black12,
+                  ),
+                  overlay: Container(
+                    color: Colors.yellow.withOpacity(0.5),
+                    height: 50,
+                    width: 50,
+                  ),
                 ),
               ),
             ],
