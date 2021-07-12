@@ -114,6 +114,7 @@ class WizardScopeState extends State<WizardScope> {
     debugPrint('[WizardScopeState] end()');
     _history.clear();
     _node.unfocus();
+    _focussedNode?.unfocus();
     _focussedNode?.state?.onNodeEnd();
   }
 
