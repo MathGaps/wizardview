@@ -32,7 +32,7 @@ class WizardScopeState extends State<WizardScope> {
   final WizardScopeNode _node = WizardScopeNode(debugLabel: 'WizardScope');
   final List<WizardNode> _history = [];
 
-  void start() {
+  void next() {
     debugPrint('[WizardScopeState] start()');
 
     /// Handles edge where there are no [WizardNode]'s in the ancestors
@@ -48,23 +48,22 @@ class WizardScopeState extends State<WizardScope> {
       history.add(focussedNode!);
     }
 
-    if (focussedNode != null) {
-      _history.add(focussedNode as WizardNode);
-      debugPrint(
-        'childNode.context.widget: ${focussedNode.context?.findAncestorStateOfType<WizardState>()}',
-      );
+    /// This can be asserted, as otherwise the loop would break or the `nextFocus()`
+    /// would return `false` => focussedNode == null.
+    focussedNode = focussedNode as WizardNode;
+    _history.add(focussedNode);
 
-      /// extra logic -> beginning the next [WizardNode], handling callbacks
-      /// etc.
-    }
+    final wizard =
+        focussedNode.context!.findAncestorStateOfType<WizardState>()!;
+    debugPrint('childNode.context.widget: $wizard');
 
-    for (final FocusNode childNode in _node.children) {
-      if (childNode is WizardNode) {
-        childNode.context?.findAncestorStateOfType<WizardState>();
-      }
-      debugPrint('childNode.parent: ${childNode.parent}');
-    }
+    wizard.widget..onNodeStart?.call();
+
+    /// extra logic -> beginning the next [WizardNode], handling callbacks
+    /// etc.
   }
+
+  void prev() {}
 
   bool get started => false;
 
