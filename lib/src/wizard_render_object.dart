@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:wizardview/src/enums/overlay_anchor.dart';
 
 ///! This is a Widget, not a RenderObject
 class WizardRenderObject extends MultiChildRenderObjectWidget {
@@ -10,6 +11,7 @@ class WizardRenderObject extends MultiChildRenderObjectWidget {
     required Widget background,
     required Widget overlay,
     required this.active,
+    required this.overlayAnchor,
     Key? key,
   }) : super(
           key: key,
@@ -21,10 +23,14 @@ class WizardRenderObject extends MultiChildRenderObjectWidget {
         );
 
   final bool active;
+  final OverlayAnchor overlayAnchor;
 
   @override
   _RenderWizardRenderObject createRenderObject(BuildContext context) {
-    return _RenderWizardRenderObject(active: active);
+    return _RenderWizardRenderObject(
+      active: active,
+      overlayAnchor: overlayAnchor,
+    );
   }
 
   @override
@@ -32,7 +38,9 @@ class WizardRenderObject extends MultiChildRenderObjectWidget {
     BuildContext context,
     _RenderWizardRenderObject renderObject,
   ) {
-    renderObject..active = active;
+    renderObject
+      ..active = active
+      ..overlayAnchor = overlayAnchor;
   }
 }
 
@@ -51,13 +59,26 @@ class _RenderWizardRenderObject extends RenderBox
     with
         ContainerRenderObjectMixin<RenderBox, WizardParentData>,
         RenderBoxContainerDefaultsMixin<RenderBox, WizardParentData> {
-  _RenderWizardRenderObject({required bool active}) : _active = active;
+  _RenderWizardRenderObject({
+    required bool active,
+    required OverlayAnchor overlayAnchor,
+  })  : _active = active,
+        _overlayAnchor = overlayAnchor;
 
   bool _active;
   bool get active => _active;
   set active(bool active) {
     if (_active == active) return;
     _active = active;
+  }
+
+  OverlayAnchor _overlayAnchor;
+  OverlayAnchor get overlayAnchor => _overlayAnchor;
+  set overlayAnchor(OverlayAnchor overlayAnchor) {
+    if (_overlayAnchor == overlayAnchor) return;
+
+    _overlayAnchor = overlayAnchor;
+    markNeedsLayout();
   }
 
   /// ParentData
@@ -83,15 +104,60 @@ class _RenderWizardRenderObject extends RenderBox
           if (active) child.paint(context, Offset.zero);
           break;
         case WizardObjectId.overlay:
-          if (active)
+          if (active) {
+            late Offset overlayOffset;
+
+            switch (overlayAnchor) {
+              case OverlayAnchor.topLeft:
+                overlayOffset =
+                    Offset(-childParentData.size!.width, -size.height);
+                break;
+              case OverlayAnchor.topCenter:
+                overlayOffset = Offset(
+                  -childParentData.size!.width / 2 + size.width / 2,
+                  -size.height,
+                );
+                break;
+              case OverlayAnchor.topRight:
+                overlayOffset = Offset(size.width, -size.height);
+                break;
+              case OverlayAnchor.centerLeft:
+                overlayOffset = Offset(
+                  -childParentData.size!.width,
+                  -childParentData.size!.height / 2 + size.height / 2,
+                );
+                break;
+              case OverlayAnchor.center:
+                overlayOffset = Offset(
+                  -childParentData.size!.width / 2 + size.width / 2,
+                  -childParentData.size!.height / 2 + size.height / 2,
+                );
+                break;
+              case OverlayAnchor.centerRight:
+                overlayOffset = Offset(
+                  size.width,
+                  -childParentData.size!.height / 2 + size.height / 2,
+                );
+                break;
+              case OverlayAnchor.bottomLeft:
+                overlayOffset =
+                    Offset(-childParentData.size!.width, size.height);
+                break;
+              case OverlayAnchor.bottomCenter:
+                overlayOffset = Offset(
+                    -childParentData.size!.width / 2 + size.width / 2,
+                    size.height);
+                break;
+              case OverlayAnchor.bottomRight:
+                overlayOffset = Offset(size.width, size.height);
+                break;
+            }
+
             child.paint(
               context,
-              offset -
-                  Offset(
-                    childParentData.size!.width / 2 - size.width / 2,
-                    childParentData.size!.height / 2 - size.height / 2,
-                  ),
+              offset + overlayOffset,
             );
+          }
           break;
         case null:
           break;
@@ -149,5 +215,10 @@ class _RenderWizardRenderObject extends RenderBox
     }
 
     return Size(width, height);
+  }
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
+    return defaultHitTestChildren(result, position: position);
   }
 }

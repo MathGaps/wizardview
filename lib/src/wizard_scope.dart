@@ -36,20 +36,16 @@ class WizardScopeState extends State<WizardScope> {
   );
 
   WizardNode? _focussedNode;
-
-  // TODO: Separate next() from start() since we're using the contents
-  // of `_history` as a basis if the [Wizard] has started, or change
-  // `started` logic
-
-  // How come this is a problem? When the showcase finishes, we could simply
-  // do _history.clear(), so that `started` goes back to `false`
+  bool _started = false;
+  bool get started => _started;
 
   final List<WizardNode> _history = [];
 
   Future<void> next() async {
     debugPrint('[WizardScopeState] next()');
 
-    if (!started) {
+    if (!_started) {
+      _started = true;
       widget.onStart?.call();
     } else {
       _focussedNode?.state
@@ -116,17 +112,14 @@ class WizardScopeState extends State<WizardScope> {
     widget.onEnd?.call();
   }
 
-  bool get started => _history.isNotEmpty;
-
   @override
   Widget build(BuildContext context) {
     return _InheritedWizardScope(
       data: this,
       child: FocusScope(
         node: _node,
-        // TODO: Fix `skipTraversal` & `canRequestFocus` flags from [WizardScope] implementation
-        // skipTraversal: !started,
-        canRequestFocus: true,
+        // skipTraversal: !_started,
+        // canRequestFocus: true,
         child: FocusTraversalGroup(
           policy: widget.policy,
           child: widget.child,

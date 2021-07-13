@@ -84,8 +84,8 @@ class _HomePageState extends State<HomePage> {
                   child: FocusTraversalOrder(
                     order: LexicalFocusOrder(c),
                     child: Wizard(
-                      child: Container(
-                        color: Colors.black,
+                      child: InkWell(
+                        onTap: () => debugPrint('tapped'),
                         child: Text(
                           c,
                           style: Theme.of(context)
@@ -104,6 +104,21 @@ class _HomePageState extends State<HomePage> {
                         height: 50,
                         width: 50,
                       ),
+
+                      // overlay: GestureDetector(
+                      //   onTap: () => WizardScope.of(context).next(),
+                      //   child: Transform.translate(
+                      //     offset: Offset(230, 120),
+                      //     child: Image.asset(
+                      //       'assets/test_overlay.png',
+                      //       height: 300,
+                      //     ),
+                      //   ),
+                      // ),
+                      // anchor
+                      onNodeStart: () {
+                        // start controller etc.
+                      },
                     ),
                   ),
                 );

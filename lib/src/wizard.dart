@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wizardview/src/enums/overlay_anchor.dart';
 
 import 'package:wizardview/src/mixins/wizard_node_mixin.dart';
 import 'package:wizardview/src/wizard_parent_data_widget.dart';
@@ -36,6 +37,7 @@ class Wizard extends StatefulWidget {
     this.overlay,
     this.onNodeStart,
     this.onNodeEnd,
+    this.overlayAnchor = OverlayAnchor.topRight,
   }) : super(key: key);
 
   /// Parameters passed down to [Focus]. The lifecycle of a [FocusNode] should
@@ -46,6 +48,8 @@ class Wizard extends StatefulWidget {
   final Widget? overlay;
   final VoidCallback? onNodeStart;
   final VoidCallback? onNodeEnd;
+  // Or create our own enum
+  final OverlayAnchor overlayAnchor;
 
   @override
   WizardState createState() => WizardState();
@@ -91,6 +95,7 @@ class WizardState extends State<Wizard> {
     /// * Animations are a bit cooked. They're rendering extremely slowly
     return WizardRenderObject(
       active: active,
+      overlayAnchor: widget.overlayAnchor,
       child: WizardParentDataWidget(
         id: WizardObjectId.child,
         child: Focus(
