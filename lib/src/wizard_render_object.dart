@@ -44,6 +44,7 @@ enum WizardObjectId {
 
 class WizardParentData extends ContainerBoxParentData<RenderBox> {
   WizardObjectId? id;
+  Size? size;
 }
 
 class _RenderWizardRenderObject extends RenderBox
@@ -82,7 +83,15 @@ class _RenderWizardRenderObject extends RenderBox
           if (active) child.paint(context, Offset.zero);
           break;
         case WizardObjectId.overlay:
-          if (active) child.paint(context, offset - Offset(12.5, 12.5));
+          if (active)
+            child.paint(
+              context,
+              offset -
+                  Offset(
+                    childParentData.size!.width / 2 - size.width / 2,
+                    childParentData.size!.height / 2 - size.height / 2,
+                  ),
+            );
           break;
         case null:
           break;
@@ -135,6 +144,7 @@ class _RenderWizardRenderObject extends RenderBox
         height = max(child.size.height, height);
       }
 
+      childParentData.size = child.size;
       child = childParentData.nextSibling;
     }
 

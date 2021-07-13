@@ -11,9 +11,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'WizardView Demo',
       theme: ThemeData(
-        primarySwatch: Colors.amber,
+        primarySwatch: Colors.grey,
       ),
-      home: HomePage(title: 'Flutter Demo Home Page'),
+      home: HomePage(title: 'WizardView Example'),
     );
   }
 }

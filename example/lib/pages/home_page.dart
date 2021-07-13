@@ -46,8 +46,13 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
-  void _incrementCounter(BuildContext context) {
+  void _next(BuildContext context) {
     WizardScope.of(context).next();
+    setState(() {});
+  }
+
+  void _prev(BuildContext context) {
+    WizardScope.of(context).prev();
     setState(() {});
   }
 
@@ -79,12 +84,15 @@ class _HomePageState extends State<HomePage> {
                   child: FocusTraversalOrder(
                     order: LexicalFocusOrder(c),
                     child: Wizard(
-                      child: Text(
-                        c,
-                        style: Theme.of(context)
-                            .textTheme
-                            .headline4!
-                            .copyWith(color: colour),
+                      child: Container(
+                        color: Colors.black,
+                        child: Text(
+                          c,
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline4!
+                              .copyWith(color: colour),
+                        ),
                       ),
                       background: Container(
                         height: MediaQuery.of(context).size.height,
@@ -104,10 +112,21 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
         floatingActionButton: Builder(
-          builder: (context) => FloatingActionButton(
-            onPressed: () => _incrementCounter(context),
-            tooltip: 'Increment',
-            child: Icon(Icons.add),
+          builder: (context) => Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              FloatingActionButton(
+                onPressed: () => _prev(context),
+                tooltip: 'Previous',
+                child: Icon(Icons.arrow_left),
+              ),
+              const SizedBox(width: 10),
+              FloatingActionButton(
+                onPressed: () => _next(context),
+                tooltip: 'Next',
+                child: Icon(Icons.arrow_right),
+              ),
+            ],
           ),
         ),
       ),
