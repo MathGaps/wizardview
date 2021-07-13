@@ -56,21 +56,17 @@ class WizardScopeState extends State<WizardScope> {
     /// Handles edge where there are no [WizardNode]'s in the ancestors
     final List<FocusNode> history = [..._history];
 
-    debugPrint(
-        '[WizardScopeState] _node.traversalChildren: ${_node.traversalChildren}');
-    debugPrint('[WizardScopeState] _node.focusedChild: ${_node.focusedChild}');
-    debugPrint(
-        '[WizardScopeState] _node.children.first: ${_node.children.first}');
-
     // Ensures [WizardScopeNode] already has the focus before iterating
     // through its children, that way `_node.focusedChild` will not return `null`.
     if (!_node.hasFocus) {
       _node.requestFocus();
-
-      /// ? You'll laugh at this one. I mean shit how else do you wait for a frame?
       await Future.delayed(Duration(seconds: 0));
     }
-    debugPrint('[WizardScopeState] _node.hasFocus: ${_node.hasFocus}');
+
+    /// Handles the case where a [WizardNode] is already selected because of
+    /// calling [prev()]
+    if (_node.focusedChild is WizardNode)
+      (_node.focusedChild as WizardNode).state?.onNodeEnd();
 
     FocusNode? focussedNode;
     do {
@@ -90,14 +86,24 @@ class WizardScopeState extends State<WizardScope> {
   /// if it does this isn't the expected behaviour. (I'm thinking of the scenario
   /// in which the position of the node changes, in such a way that the
   /// [ReadingOrderTraversalPolicy] changes. Eh fuck it)
-  void prev() {
-    if (_history.isEmpty) return;
+  void prev() async {
+    if (_history.isEmpty) {
+      end();
+      return;
+    }
 
-    _history.removeLast().state
+    final removedNode = _history.removeLast();
+    removedNode.state
       ?..active = false
       ..onNodeEnd();
-    if (_history.isEmpty) end();
 
+    if (_history.isEmpty) {
+      removedNode.previousFocus();
+      end();
+      return;
+    }
+
+    _history.last.requestFocus();
     _history.last.state
       ?..active = true
       ..onNodeStart();

@@ -37,7 +37,7 @@ class Wizard extends StatefulWidget {
     this.overlay,
     this.onNodeStart,
     this.onNodeEnd,
-    this.overlayAnchor = OverlayAnchor.topRight,
+    this.overlayAnchor = OverlayAnchor.center,
   }) : super(key: key);
 
   /// Parameters passed down to [Focus]. The lifecycle of a [FocusNode] should
