@@ -5,7 +5,6 @@ import 'package:wizardview/wizardview.dart';
 
 const alphabet = 'abcdefghijklmnopqrstuvwxyz';
 
-//? I got bored okay
 Color interpolateColour(double n) {
   if (n < 1 / 6) {
     final p = n * 6;
@@ -37,30 +36,31 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
-  late final List<String> shuffledAlphabet;
+class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
+  late final List<String> _shuffledAlphabet;
+  final Map<String, AnimationController> _controllers = {};
+  final Map<String, Animation<double>> _animations = {};
+  final Tween<double> _tween = Tween(begin: 0, end: 1.0);
 
   @override
   void initState() {
-    shuffledAlphabet = alphabet.characters.toList()..shuffle();
     super.initState();
+
+    _shuffledAlphabet = alphabet.characters.toList()..shuffle();
   }
 
-  void _next(BuildContext context) {
-    WizardScope.of(context).next();
-    setState(() {});
-  }
+  void _next(BuildContext context) => WizardScope.of(context).next();
 
-  void _prev(BuildContext context) {
-    WizardScope.of(context).prev();
-    setState(() {});
-  }
+  void _prev(BuildContext context) => WizardScope.of(context).prev();
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+
     return WizardScope(
       policy: OrderedTraversalPolicy(),
+      onStart: () => debugPrint('[WizardView] has started'),
+      onEnd: () => debugPrint('[WizardView] has ended'),
       child: Scaffold(
         appBar: AppBar(
           title: Text(widget.title),
@@ -70,21 +70,39 @@ class _HomePageState extends State<HomePage> {
             ...List.generate(
               26,
               (i) {
-                final c = shuffledAlphabet[i];
+                final c = _shuffledAlphabet[i];
                 final double p = i / 26,
-                    r = size.width / 5 - size.width / 3 * sin(2 * pi * p),
+                    r = min(size.width, size.height) / 4,
                     theta = 2 * pi * p,
                     x = cos(theta),
                     y = sin(theta);
                 final colour = interpolateColour(p);
                 final constrastingColour = interpolateColour(1 - p);
+
+                if (_controllers[c] == null) {
+                  final controller = AnimationController(
+                      vsync: this, duration: Duration(milliseconds: 300));
+                  final animation = _tween.animate(
+                    CurvedAnimation(
+                      parent: controller,
+                      curve: Curves.easeInOutCubic,
+                    ),
+                  );
+                  controller.addListener(() {
+                    // if (controller.isAnimating) setState(() {});
+                    setState(() {});
+                  });
+
+                  _controllers.putIfAbsent(c, () => controller);
+                  _animations.putIfAbsent(c, () => animation);
+                }
                 return Positioned(
                   top: y * r + size.height / 2,
                   left: x * r + size.width / 2,
                   child: FocusTraversalOrder(
                     order: LexicalFocusOrder(c),
                     child: Wizard(
-                      child: InkWell(
+                      child: GestureDetector(
                         onTap: () => debugPrint('tapped'),
                         child: Text(
                           c,
@@ -99,26 +117,37 @@ class _HomePageState extends State<HomePage> {
                         width: MediaQuery.of(context).size.width,
                         color: constrastingColour.withOpacity(0.1),
                       ),
-                      overlay: Container(
-                        color: constrastingColour.withOpacity(0.5),
-                        height: 50,
-                        width: 50,
+                      overlay: Transform.scale(
+                        scale: _animations[c]!.value,
+                        child: Container(
+                          decoration: BoxDecoration(
+                              // color: constrastingColour.withOpacity(0.5),
+                              color: Theme.of(context).canvasColor,
+                              borderRadius: BorderRadius.only(
+                                bottomRight: Radius.circular(10),
+                                bottomLeft: Radius.circular(10),
+                                topRight: Radius.circular(10),
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  offset: Offset(0, 5),
+                                  blurRadius: 5,
+                                  color: Colors.black12,
+                                )
+                              ]),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 10),
+                          child: Text(
+                            'Step ${c.toUpperCase()}',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                            ),
+                          ),
+                        ),
                       ),
-
-                      // overlay: GestureDetector(
-                      //   onTap: () => WizardScope.of(context).next(),
-                      //   child: Transform.translate(
-                      //     offset: Offset(230, 120),
-                      //     child: Image.asset(
-                      //       'assets/test_overlay.png',
-                      //       height: 300,
-                      //     ),
-                      //   ),
-                      // ),
-                      // anchor
-                      onNodeStart: () {
-                        // start controller etc.
-                      },
+                      onNodeStart: () => _controllers[c]!.forward(),
+                      onNodeEnd: () => _controllers[c]!.reverse(),
                     ),
                   ),
                 );

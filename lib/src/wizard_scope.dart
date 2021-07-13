@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:wizardview/src/mixins/wizard_scope_node_mixin.dart';
 import 'package:wizardview/wizardview.dart';
@@ -5,6 +7,8 @@ import 'package:wizardview/wizardview.dart';
 //TODO: #1 Documentation on WizardScope
 
 class WizardScopeNode = FocusScopeNode with WizardScopeNodeMixin;
+
+typedef WizardCallback = FutureOr<void> Function();
 
 class WizardScope extends StatefulWidget {
   const WizardScope({
@@ -17,8 +21,8 @@ class WizardScope extends StatefulWidget {
 
   final Widget child;
   final FocusTraversalPolicy? policy;
-  final VoidCallback? onStart;
-  final VoidCallback? onEnd;
+  final WizardCallback? onStart;
+  final WizardCallback? onEnd;
 
   static WizardScopeState of(BuildContext context) {
     return (context.dependOnInheritedWidgetOfExactType<_InheritedWizardScope>()
@@ -36,21 +40,19 @@ class WizardScopeState extends State<WizardScope> {
   );
 
   WizardNode? _focussedNode;
-  bool _started = false;
-  bool get started => _started;
-
+  bool get started => _started.value;
   final List<WizardNode> _history = [];
+  ValueNotifier<bool> _started = ValueNotifier(false);
 
   Future<void> next() async {
     debugPrint('[WizardScopeState] next()');
 
-    if (!_started) {
-      _started = true;
-      widget.onStart?.call();
+    if (!_started.value) {
+      _started.value = true;
+      await widget.onStart?.call();
     } else {
-      _focussedNode?.state
-        ?..active = false
-        ..onNodeEnd();
+      await _focussedNode?.state?.onNodeEnd();
+      _focussedNode?.state?..active = false;
     }
 
     /// Handles edge where there are no [WizardNode]'s in the ancestors
@@ -60,13 +62,11 @@ class WizardScopeState extends State<WizardScope> {
     // through its children, that way `_node.focusedChild` will not return `null`.
     if (!_node.hasFocus) {
       _node.requestFocus();
+
+      // Wait for the next frame to ensure [_node] has received focus since
+      // notification may lag for up to a frame
       await Future.delayed(Duration(seconds: 0));
     }
-
-    /// Handles the case where a [WizardNode] is already selected because of
-    /// calling [prev()]
-    if (_node.focusedChild is WizardNode)
-      (_node.focusedChild as WizardNode).state?.onNodeEnd();
 
     FocusNode? focussedNode;
     do {
@@ -79,13 +79,16 @@ class WizardScopeState extends State<WizardScope> {
 
     debugPrint('[WizardScopeState] WizardNode ${_history.length} found');
 
-    focussedNode.state!.onNodeStart();
+    //! Problem here, at the [WizardScope] level, we don't know if the overlay
+    //! is animating or not since we designed it that way. But we want [WizardScope]
+    //! to rebuild while the `overlay` is animating. Passing in controllers to
+    //! [Wizard] or [WizardScope] would defeat our goal of this being really
+    //! flexible
+    _focussedNode!.state!.active = true;
+    Overlay.of(context)?.insert(_focussedNode!.state!.overlayEntry);
+    await _focussedNode!.state!.onNodeStart();
   }
 
-  /// * Could previous change depending on the FocusTraversal? Although, maybe
-  /// if it does this isn't the expected behaviour. (I'm thinking of the scenario
-  /// in which the position of the node changes, in such a way that the
-  /// [ReadingOrderTraversalPolicy] changes. Eh fuck it)
   void prev() async {
     if (_history.isEmpty) {
       end();
@@ -93,9 +96,9 @@ class WizardScopeState extends State<WizardScope> {
     }
 
     final removedNode = _history.removeLast();
-    removedNode.state
-      ?..active = false
-      ..onNodeEnd();
+    await removedNode.state?.onNodeEnd();
+    removedNode.state?..active = false;
+    _focussedNode!.state!.overlayEntry.remove();
 
     if (_history.isEmpty) {
       removedNode.previousFocus();
@@ -103,18 +106,20 @@ class WizardScopeState extends State<WizardScope> {
       return;
     }
 
-    _history.last.requestFocus();
-    _history.last.state
-      ?..active = true
-      ..onNodeStart();
+    _focussedNode = _history.last
+      ..requestFocus()
+      ..state?.active = true;
+    Overlay.of(context)?.insert(_focussedNode!.state!.overlayEntry);
+    await _history.last.state?.onNodeStart();
   }
 
-  void end() {
+  void end() async {
     debugPrint('[WizardScopeState] end()');
     _history.clear();
     _node.unfocus();
+    _focussedNode!.state!.overlayEntry.remove();
     _focussedNode?.unfocus();
-    _focussedNode?.state?.onNodeEnd();
+    await _focussedNode?.state?.onNodeEnd();
     widget.onEnd?.call();
   }
 
@@ -124,8 +129,8 @@ class WizardScopeState extends State<WizardScope> {
       data: this,
       child: FocusScope(
         node: _node,
-        // skipTraversal: !_started,
-        // canRequestFocus: true,
+        // skipTraversal: !started,
+        // canRequestFocus: started,
         child: FocusTraversalGroup(
           policy: widget.policy,
           child: widget.child,
