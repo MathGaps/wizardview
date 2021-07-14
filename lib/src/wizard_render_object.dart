@@ -18,9 +18,6 @@ class WizardRenderObjectWidget extends MultiChildRenderObjectWidget {
                 id: WizardObjectId.background, child: background),
             WizardParentDataWidget(id: WizardObjectId.child, child: child),
             ...overlays
-                .map((overlay) => WizardParentDataWidget(
-                    id: WizardObjectId.overlay, child: overlay))
-                .toList(),
           ],
         );
 

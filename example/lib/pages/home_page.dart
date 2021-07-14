@@ -57,6 +57,24 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
+    final boxShadow = [
+      BoxShadow(
+        offset: Offset(0, 5),
+        blurRadius: 5,
+        color: Colors.black12,
+      )
+    ];
+    const padding = const EdgeInsets.symmetric(horizontal: 20, vertical: 10);
+    final textStyle = TextStyle(
+      fontWeight: FontWeight.bold,
+      fontSize: 20,
+    );
+    final background = Container(
+      height: MediaQuery.of(context).size.height,
+      width: MediaQuery.of(context).size.width,
+      color: Colors.black26,
+    );
+
     return WizardScope(
       policy: OrderedTraversalPolicy(),
       onStart: () => debugPrint('[WizardView] has started'),
@@ -90,6 +108,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           curve: Curves.easeInOutCubic,
                         ),
                       );
+
                       controller.addListener(() {
                         // setState rebuilds this widget but not the `OverlayEntry` inside `WizardScope`
                         setState(() {});
@@ -116,11 +135,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   .copyWith(color: colour),
                             ),
                           ),
-                          background: Container(
-                            height: MediaQuery.of(context).size.height,
-                            width: MediaQuery.of(context).size.width,
-                            color: Colors.black26,
-                          ),
+                          background: background,
                           overlays: [
                             WizardOverlay(
                               child: Transform.scale(
@@ -133,21 +148,32 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                         bottomLeft: Radius.circular(10),
                                         topRight: Radius.circular(10),
                                       ),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          offset: Offset(0, 5),
-                                          blurRadius: 5,
-                                          color: Colors.black12,
-                                        )
-                                      ]),
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 20, vertical: 10),
+                                      boxShadow: boxShadow),
+                                  padding: padding,
                                   child: Text(
                                     'Step ${c.toUpperCase()}',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 20,
-                                    ),
+                                    style: textStyle,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            WizardOverlay(
+                              alignment: Alignment.topCenter,
+                              child: Transform.scale(
+                                scale: _animations[c]!.value,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      color: Theme.of(context).canvasColor,
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(10),
+                                        bottomLeft: Radius.circular(10),
+                                        topRight: Radius.circular(10),
+                                      ),
+                                      boxShadow: boxShadow),
+                                  padding: padding,
+                                  child: Text(
+                                    'Step ${c.toUpperCase()}',
+                                    style: textStyle,
                                   ),
                                 ),
                               ),

@@ -49,6 +49,7 @@ class WizardScopeState extends State<WizardScope> {
   bool get started => _started.value;
   final List<WizardNode> _history = [];
   ValueNotifier<bool> _started = ValueNotifier(false);
+  OverlayEntry? _actionsOverlay;
 
   /// Reference to the currently presented overlay, we need this to call
   /// `markNeedsBuild` on it when animating
@@ -66,9 +67,12 @@ class WizardScopeState extends State<WizardScope> {
 
     if (!_started.value) {
       _started.value = true;
+
+      _inflateActionsOverlay();
       await widget.onStart?.call();
     } else {
       await _focussedNode?.state?.onNodeEnd();
+      _currentOverlayEntry?.remove();
       _focussedNode?.state?..active = false;
     }
 
@@ -139,6 +143,7 @@ class WizardScopeState extends State<WizardScope> {
     _history.clear();
     _node.unfocus();
     _currentOverlayEntry?.remove();
+    _actionsOverlay?.remove();
     _focussedNode?.unfocus();
     await _focussedNode?.state?.onNodeEnd();
     widget.onEnd?.call();
@@ -155,6 +160,21 @@ class WizardScopeState extends State<WizardScope> {
         child: FocusTraversalGroup(
           policy: widget.policy,
           child: widget.child,
+        ),
+      ),
+    );
+  }
+
+  void _inflateActionsOverlay() {
+    if (widget.actions == null) return;
+
+    Overlay.of(context)?.insert(
+      _actionsOverlay = OverlayEntry(
+        builder: (BuildContext context) => Align(
+          alignment: widget.actionsAlignment,
+          child: Row(
+            children: widget.actions!,
+          ),
         ),
       ),
     );

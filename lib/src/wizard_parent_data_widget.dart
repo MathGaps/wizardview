@@ -6,6 +6,7 @@ class WizardParentDataWidget extends ParentDataWidget<WizardParentData> {
     required Widget child,
     required this.id,
     this.alignment = Alignment.bottomRight,
+    this.offset,
     Key? key,
   }) : super(
           key: key,
@@ -14,7 +15,8 @@ class WizardParentDataWidget extends ParentDataWidget<WizardParentData> {
 
   final WizardObjectId id;
   // Only used by overlays to positioned themselves according to the actual `child`
-  final Alignment alignment;
+  final Alignment? alignment;
+  final Offset? offset;
 
   @override
   void applyParentData(RenderObject renderObject) {
@@ -26,6 +28,10 @@ class WizardParentDataWidget extends ParentDataWidget<WizardParentData> {
 
     if (parentData.alignment != alignment) {
       parentData.alignment = alignment;
+    }
+
+    if (parentData.offset != offset) {
+      parentData.offset = offset ?? Offset.zero;
     }
 
     final targetObject = renderObject.parent;

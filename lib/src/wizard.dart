@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:wizardview/src/mixins/wizard_node_mixin.dart';
 import 'package:wizardview/src/wizard_overlay.dart';
+import 'package:wizardview/src/wizard_parent_data_widget.dart';
 import 'package:wizardview/src/wizard_render_object.dart';
 
 import 'wizard_scope.dart';
@@ -99,11 +100,15 @@ class WizardState extends State<Wizard> {
               // `overlays` have to pass their alignments inside the
               // [WizardRenderObjectWidget]
               overlays: widget.overlays.map((overlay) {
-                return overlay.builder?.call(
-                      _wizardNode.offset,
-                      _wizardNode.size,
-                    ) ??
-                    overlay.child!;
+                return WizardParentDataWidget(
+                  id: WizardObjectId.overlay,
+                  alignment: overlay.alignment,
+                  child: overlay.builder?.call(
+                        _wizardNode.offset,
+                        _wizardNode.size,
+                      ) ??
+                      overlay.child!,
+                );
               }).toList(),
               child: Focus(
                 focusNode: _wizardNode,
@@ -124,6 +129,13 @@ class WizardState extends State<Wizard> {
     // final bool started = WizardScope.of(context).started;
 
     //? This should be displayed in an Overlay when active
+    return Focus(
+      focusNode: _wizardNode,
+      child: widget.child,
+      // skipTraversal: !started,
+      // canRequestFocus: started,
+    );
+
     return WizardRenderObjectWidget(
       active: active,
       overlays: widget.overlays.map((overlay) {
