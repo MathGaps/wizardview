@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:wizardview/src/mixins/wizard_node_mixin.dart';
+import 'package:wizardview/src/wizard_overlay.dart';
 import 'package:wizardview/src/wizard_render_object.dart';
 
 import 'wizard_scope.dart';
@@ -17,51 +18,36 @@ extension WizardNodeX on WizardNode {
   WizardState? get state => context?.findAncestorStateOfType<WizardState>();
 }
 
-typedef OverlayBuilder = Widget Function(Offset offset, Size size);
-
 class Wizard extends StatefulWidget {
   const Wizard({
-    Key? key,
     required this.child,
+    required List<WizardOverlay>? overlays,
+    this.activeChild,
     this.background,
-    this.overlay,
     this.onNodeStart,
     this.onNodeEnd,
-    Alignment overlayAlignment = Alignment.bottomRight,
-  })  : overlayAlignment = overlayAlignment,
-        overlayBuilder = null,
-        super(key: key);
+    this.renderChild = true,
+    Key? key,
+  })  :
 
-  const Wizard.builder({
-    Key? key,
-    required this.child,
-    required OverlayBuilder overlayBuilder,
-    this.background,
-    this.overlay,
-    this.onNodeStart,
-    this.onNodeEnd,
-  })  : overlayAlignment = null,
-        overlayBuilder = overlayBuilder,
+        ///! This list is not growable => overlays cannot be added after Wizard
+        ///! construction.
+        overlays = overlays ?? const [],
         super(key: key);
 
   /// The widget to be focused
   final Widget child;
+  final Widget? activeChild;
+  final bool renderChild;
+  final List<WizardOverlay> overlays;
 
-  /// The widget to be shown behind the [child] and the [overlay]. Typically,
+  /// The widget to be shown behind the [child] and the [overlays]. Typically,
   /// an empty [Container] with `color: Colors.black12` to emulate a dimming
   /// effect
   final Widget? background;
 
-  /// The
-  final Widget? overlay;
-
-  ///
   final WizardCallback? onNodeStart;
-
   final WizardCallback? onNodeEnd;
-
-  final Alignment? overlayAlignment;
-  final OverlayBuilder? overlayBuilder;
 
   @override
   WizardState createState() => WizardState();
@@ -99,7 +85,7 @@ class WizardState extends State<Wizard> {
     active = false;
   }
 
-  OverlayEntry get overlayEntry {
+  OverlayEntry overlayEntry({Widget? background}) {
     return OverlayEntry(
       builder: (BuildContext context) {
         return Positioned(
@@ -107,6 +93,8 @@ class WizardState extends State<Wizard> {
           left: _wizardNode.offset.dx,
           child: Material(
             color: Colors.transparent,
+
+            ///! This should return [WizardRenderObject]
             child: widget.overlay ?? Container(),
           ),
         );
@@ -118,9 +106,11 @@ class WizardState extends State<Wizard> {
   Widget build(BuildContext context) {
     // final bool started = WizardScope.of(context).started;
 
-    return WizardRenderObject(
+    //? This should be displayed in an Overlay when active
+    return WizardRenderObjectWidget(
       active: active,
       overlayAlignment: widget.overlayAlignment,
+      overlay: widget.overlay,
       child: Focus(
         focusNode: _wizardNode,
         child: widget.child,

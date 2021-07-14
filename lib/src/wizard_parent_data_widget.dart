@@ -29,5 +29,5 @@ class WizardParentDataWidget extends ParentDataWidget<WizardParentData> {
   }
 
   @override
-  Type get debugTypicalAncestorWidgetClass => WizardRenderObject;
+  Type get debugTypicalAncestorWidgetClass => WizardRenderObjectWidget;
 }

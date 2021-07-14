@@ -3,11 +3,11 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-///! This is a Widget, not a RenderObject
-class WizardRenderObject extends MultiChildRenderObjectWidget {
-  WizardRenderObject({
+class WizardRenderObjectWidget extends MultiChildRenderObjectWidget {
+  WizardRenderObjectWidget({
     required Widget child,
     required Widget background,
+    //TODO: refactor for overlays
     required Widget overlay,
     required this.active,
     Key? key,
@@ -16,7 +16,7 @@ class WizardRenderObject extends MultiChildRenderObjectWidget {
           children: [
             background,
             child,
-            overlay,
+            ...overlays,
           ],
         );
 

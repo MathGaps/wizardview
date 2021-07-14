@@ -13,13 +13,17 @@ typedef WizardCallback = FutureOr<void> Function();
 class WizardScope extends StatefulWidget {
   const WizardScope({
     required this.child,
+    this.background,
     this.policy,
     this.onStart,
     this.onEnd,
     Key? key,
   }) : super(key: key);
 
+  ///TODO: implement List<Widget> actions + actionsAlignment - this could just
+  ///be a persistent [OverlayEntry] at this level
   final Widget child;
+  final Widget? background;
   final FocusTraversalPolicy? policy;
   final WizardCallback? onStart;
   final WizardCallback? onEnd;
@@ -91,8 +95,11 @@ class WizardScopeState extends State<WizardScope> {
     debugPrint('[WizardScopeState] WizardNode ${_history.length} found');
 
     focussedNode.state!.active = true;
-    Overlay.of(context)
-        ?.insert(_currentOverlayEntry = focussedNode.state!.overlayEntry);
+    Overlay.of(context)?.insert(
+      _currentOverlayEntry = focussedNode.state!.overlayEntry(
+        background: widget.background,
+      ),
+    );
     setState(() {});
     await focussedNode.state!.onNodeStart();
   }
@@ -106,7 +113,7 @@ class WizardScopeState extends State<WizardScope> {
     final removedNode = _history.removeLast();
     await removedNode.state?.onNodeEnd();
     removedNode.state?..active = false;
-    _focussedNode!.state!.overlayEntry.remove();
+    _currentOverlayEntry?.remove();
 
     if (_history.isEmpty) {
       removedNode.previousFocus();
@@ -119,7 +126,9 @@ class WizardScopeState extends State<WizardScope> {
       ..state?.active = true;
     Overlay.of(
       context,
-    )?.insert(_currentOverlayEntry = _focussedNode!.state!.overlayEntry);
+    )?.insert(_currentOverlayEntry = _focussedNode!.state!.overlayEntry(
+      background: widget.background,
+    ));
     await _history.last.state?.onNodeStart();
   }
 
@@ -127,7 +136,7 @@ class WizardScopeState extends State<WizardScope> {
     debugPrint('[WizardScopeState] end()');
     _history.clear();
     _node.unfocus();
-    _focussedNode!.state!.overlayEntry.remove();
+    _currentOverlayEntry?.remove();
     _focussedNode?.unfocus();
     await _focussedNode?.state?.onNodeEnd();
     widget.onEnd?.call();
