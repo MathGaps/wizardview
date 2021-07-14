@@ -47,6 +47,8 @@ class WizardParentData extends ContainerBoxParentData<RenderBox> {
   WizardObjectId? id;
   Alignment? alignment;
   Size? size;
+  Offset? overlayOffset;
+  Size? overlaySize;
 }
 
 class _RenderWizardRenderObject extends RenderBox
@@ -86,22 +88,28 @@ class _RenderWizardRenderObject extends RenderBox
         case WizardObjectId.overlay:
           if (active) {
             late Offset overlayOffset;
-            final alignmentFactor = Size(
-                childParentData.size!.width / 2 + size.width / 2,
-                childParentData.size!.height / 2 + size.height / 2);
-            overlayOffset = Offset(
-                -childParentData.size!.width / 2 + size.width / 2,
-                -childParentData.size!.height / 2 + size.height / 2);
 
-            child.paint(
-              context,
-              offset +
-                  overlayOffset +
-                  Offset(
-                    childParentData.alignment!.x * alignmentFactor.width,
-                    childParentData.alignment!.y * alignmentFactor.height,
-                  ),
-            );
+            if (childParentData.alignment == null) {
+              /// TODO: paint using overlayOffset etc.
+              child.paint(context, offset);
+            } else {
+              final alignmentFactor = Size(
+                  childParentData.size!.width / 2 + size.width / 2,
+                  childParentData.size!.height / 2 + size.height / 2);
+              overlayOffset = Offset(
+                  -childParentData.size!.width / 2 + size.width / 2,
+                  -childParentData.size!.height / 2 + size.height / 2);
+
+              child.paint(
+                context,
+                offset +
+                    overlayOffset +
+                    Offset(
+                      childParentData.alignment!.x * alignmentFactor.width,
+                      childParentData.alignment!.y * alignmentFactor.height,
+                    ),
+              );
+            }
           }
           break;
         case null:

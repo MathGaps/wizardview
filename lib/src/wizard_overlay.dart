@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-typedef OverlayBuilder = Widget Function(Offset offset, Size size);
+//TODO: Think of a better name here / a better approach
+typedef OverlayBuilder = BuiltWizardOverlay Function(Offset offset, Size size);
 
 class WizardOverlay {
   const WizardOverlay({
@@ -19,4 +20,13 @@ class WizardOverlay {
   final OverlayBuilder? builder;
   final Widget? child;
   final Alignment? alignment;
+}
+
+class BuiltWizardOverlay {
+  //TODO:
+  BuiltWizardOverlay(this.child, this.offset, this.size);
+
+  final Widget child;
+  final Offset offset;
+  final Size size;
 }
