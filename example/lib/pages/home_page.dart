@@ -65,95 +65,130 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         appBar: AppBar(
           title: Text(widget.title),
         ),
-        body: Stack(
-          children: <Widget>[
-            ...List.generate(
-              26,
-              (i) {
-                final c = _shuffledAlphabet[i];
-                final double p = i / 26,
-                    r = min(size.width, size.height) / 4,
-                    theta = 2 * pi * p,
-                    x = cos(theta),
-                    y = sin(theta);
-                final colour = interpolateColour(p);
-                final constrastingColour = interpolateColour(1 - p);
+        body: Builder(
+          builder: (BuildContext context) {
+            return Stack(
+              children: <Widget>[
+                ...List.generate(
+                  26,
+                  (i) {
+                    final c = _shuffledAlphabet[i];
+                    final double p = i / 26,
+                        r = min(size.width, size.height) / 4,
+                        theta = 2 * pi * p,
+                        x = cos(theta),
+                        y = sin(theta);
+                    final colour = interpolateColour(p);
+                    final constrastingColour = interpolateColour(1 - p);
 
-                if (_controllers[c] == null) {
-                  final controller = AnimationController(
-                      vsync: this, duration: Duration(milliseconds: 300));
-                  final animation = _tween.animate(
-                    CurvedAnimation(
-                      parent: controller,
-                      curve: Curves.easeInOutCubic,
-                    ),
-                  );
-                  controller.addListener(() {
-                    // if (controller.isAnimating) setState(() {});
-                    setState(() {});
-                  });
-
-                  _controllers.putIfAbsent(c, () => controller);
-                  _animations.putIfAbsent(c, () => animation);
-                }
-                return Positioned(
-                  top: y * r + size.height / 2,
-                  left: x * r + size.width / 2,
-                  child: FocusTraversalOrder(
-                    order: LexicalFocusOrder(c),
-                    child: Wizard(
-                      child: GestureDetector(
-                        onTap: () => debugPrint('tapped'),
-                        child: Text(
-                          c,
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline4!
-                              .copyWith(color: colour),
+                    if (_controllers[c] == null) {
+                      final controller = AnimationController(
+                          vsync: this, duration: Duration(milliseconds: 300));
+                      final animation = _tween.animate(
+                        CurvedAnimation(
+                          parent: controller,
+                          curve: Curves.easeInOutCubic,
                         ),
-                      ),
-                      background: Container(
-                        height: MediaQuery.of(context).size.height,
-                        width: MediaQuery.of(context).size.width,
-                        color: constrastingColour.withOpacity(0.1),
-                      ),
-                      overlay: Transform.scale(
-                        scale: _animations[c]!.value,
-                        child: Container(
-                          decoration: BoxDecoration(
-                              // color: constrastingColour.withOpacity(0.5),
-                              color: Theme.of(context).canvasColor,
-                              borderRadius: BorderRadius.only(
-                                bottomRight: Radius.circular(10),
-                                bottomLeft: Radius.circular(10),
-                                topRight: Radius.circular(10),
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  offset: Offset(0, 5),
-                                  blurRadius: 5,
-                                  color: Colors.black12,
-                                )
-                              ]),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 10),
-                          child: Text(
-                            'Step ${c.toUpperCase()}',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20,
+                      );
+                      controller.addListener(() {
+                        // setState rebuilds this widget but not the `OverlayEntry` inside `WizardScope`
+                        setState(() {});
+                        // This actually rebuilds the `OverlayEntry`
+                        WizardScope.of(context).animate();
+                      });
+
+                      _controllers.putIfAbsent(c, () => controller);
+                      _animations.putIfAbsent(c, () => animation);
+                    }
+                    return Positioned(
+                      top: y * r + size.height / 2,
+                      left: x * r + size.width / 2,
+                      child: FocusTraversalOrder(
+                        order: LexicalFocusOrder(c),
+                        child: Wizard(
+                          child: GestureDetector(
+                            onTap: () => debugPrint('tapped'),
+                            child: Text(
+                              c,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headline4!
+                                  .copyWith(color: colour),
                             ),
                           ),
+                          background: Container(
+                            height: MediaQuery.of(context).size.height,
+                            width: MediaQuery.of(context).size.width,
+                            color: constrastingColour.withOpacity(0.1),
+                          ),
+                          overlay: Transform.scale(
+                            scale: _animations[c]!.value,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  // color: constrastingColour.withOpacity(0.5),
+                                  color: Theme.of(context).canvasColor,
+                                  borderRadius: BorderRadius.only(
+                                    bottomRight: Radius.circular(10),
+                                    bottomLeft: Radius.circular(10),
+                                    topRight: Radius.circular(10),
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      offset: Offset(0, 5),
+                                      blurRadius: 5,
+                                      color: Colors.black12,
+                                    )
+                                  ]),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 10),
+                              child: Text(
+                                'Step ${c.toUpperCase()}',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                ),
+                              ),
+                            ),
+                          ),
+                          // overlay: Transform.scale(
+                          //   scale: _animations[c]!.value,
+                          //   child: Container(
+                          //     decoration: BoxDecoration(
+                          //         // color: constrastingColour.withOpacity(0.5),
+                          //         color: Theme.of(context).canvasColor,
+                          //         borderRadius: BorderRadius.only(
+                          //           bottomRight: Radius.circular(10),
+                          //           bottomLeft: Radius.circular(10),
+                          //           topRight: Radius.circular(10),
+                          //         ),
+                          //         boxShadow: [
+                          //           BoxShadow(
+                          //             offset: Offset(0, 5),
+                          //             blurRadius: 5,
+                          //             color: Colors.black12,
+                          //           )
+                          //         ]),
+                          //     padding: const EdgeInsets.symmetric(
+                          //         horizontal: 20, vertical: 10),
+                          //     child: Text(
+                          //       'Step ${c.toUpperCase()}',
+                          //       style: TextStyle(
+                          //         fontWeight: FontWeight.bold,
+                          //         fontSize: 20,
+                          //       ),
+                          //     ),
+                          //   ),
+                          // ),
+                          onNodeStart: () => _controllers[c]!.forward(),
+                          onNodeEnd: () => _controllers[c]!.reverse(),
                         ),
                       ),
-                      onNodeStart: () => _controllers[c]!.forward(),
-                      onNodeEnd: () => _controllers[c]!.reverse(),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ],
+                    );
+                  },
+                ),
+              ],
+            );
+          },
         ),
         floatingActionButton: Builder(
           builder: (context) => Row(

@@ -74,7 +74,6 @@ class WizardState extends State<Wizard> {
 
   Future<void> onNodeStart() async {
     active = true;
-    setState(() {});
     await widget.onNodeStart?.call();
   }
 

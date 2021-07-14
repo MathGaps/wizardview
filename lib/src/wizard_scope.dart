@@ -44,6 +44,17 @@ class WizardScopeState extends State<WizardScope> {
   final List<WizardNode> _history = [];
   ValueNotifier<bool> _started = ValueNotifier(false);
 
+  /// Reference to the currently presented overlay, we need this to call
+  /// `markNeedsBuild` on it when animating
+  OverlayEntry? _currentOverlayEntry;
+
+  /// Call this if the `overlay` widget of your [Wizard] needs to be animated
+  void animate() {
+    if (_currentOverlayEntry?.mounted ?? false) {
+      _currentOverlayEntry?.markNeedsBuild();
+    }
+  }
+
   Future<void> next() async {
     debugPrint('[WizardScopeState] next()');
 
@@ -79,14 +90,11 @@ class WizardScopeState extends State<WizardScope> {
 
     debugPrint('[WizardScopeState] WizardNode ${_history.length} found');
 
-    //! Problem here, at the [WizardScope] level, we don't know if the overlay
-    //! is animating or not since we designed it that way. But we want [WizardScope]
-    //! to rebuild while the `overlay` is animating. Passing in controllers to
-    //! [Wizard] or [WizardScope] would defeat our goal of this being really
-    //! flexible
-    _focussedNode!.state!.active = true;
-    Overlay.of(context)?.insert(_focussedNode!.state!.overlayEntry);
-    await _focussedNode!.state!.onNodeStart();
+    focussedNode.state!.active = true;
+    Overlay.of(context)
+        ?.insert(_currentOverlayEntry = focussedNode.state!.overlayEntry);
+    setState(() {});
+    await focussedNode.state!.onNodeStart();
   }
 
   void prev() async {
@@ -109,7 +117,9 @@ class WizardScopeState extends State<WizardScope> {
     _focussedNode = _history.last
       ..requestFocus()
       ..state?.active = true;
-    Overlay.of(context)?.insert(_focussedNode!.state!.overlayEntry);
+    Overlay.of(
+      context,
+    )?.insert(_currentOverlayEntry = _focussedNode!.state!.overlayEntry);
     await _history.last.state?.onNodeStart();
   }
 
