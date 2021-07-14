@@ -17,16 +17,18 @@ class WizardScope extends StatefulWidget {
     this.policy,
     this.onStart,
     this.onEnd,
+    this.actions,
+    this.actionsAlignment = Alignment.bottomRight,
     Key? key,
   }) : super(key: key);
 
-  ///TODO: implement List<Widget> actions + actionsAlignment - this could just
-  ///be a persistent [OverlayEntry] at this level
   final Widget child;
   final Widget? background;
   final FocusTraversalPolicy? policy;
   final WizardCallback? onStart;
   final WizardCallback? onEnd;
+  final List<Widget>? actions;
+  final Alignment actionsAlignment;
 
   static WizardScopeState of(BuildContext context) {
     return (context.dependOnInheritedWidgetOfExactType<_InheritedWizardScope>()

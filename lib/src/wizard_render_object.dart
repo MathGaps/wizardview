@@ -2,21 +2,25 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:wizardview/src/wizard_parent_data_widget.dart';
 
 class WizardRenderObjectWidget extends MultiChildRenderObjectWidget {
   WizardRenderObjectWidget({
     required Widget child,
     required Widget background,
-    //TODO: refactor for overlays
-    required Widget overlay,
+    required List<Widget> overlays,
     required this.active,
     Key? key,
   }) : super(
           key: key,
           children: [
-            background,
-            child,
-            ...overlays,
+            WizardParentDataWidget(
+                id: WizardObjectId.background, child: background),
+            WizardParentDataWidget(id: WizardObjectId.child, child: child),
+            ...overlays
+                .map((overlay) => WizardParentDataWidget(
+                    id: WizardObjectId.overlay, child: overlay))
+                .toList(),
           ],
         );
 
@@ -44,6 +48,8 @@ enum WizardObjectId {
 
 class WizardParentData extends ContainerBoxParentData<RenderBox> {
   WizardObjectId? id;
+  Alignment? alignment;
+  Size? size;
 }
 
 class _RenderWizardRenderObject extends RenderBox
@@ -82,7 +88,72 @@ class _RenderWizardRenderObject extends RenderBox
           if (active) child.paint(context, Offset.zero);
           break;
         case WizardObjectId.overlay:
-          if (active) child.paint(context, offset - Offset(12.5, 12.5));
+          if (active) {
+            late Offset overlayOffset;
+
+            // switch (overlayAlignment) {
+            //   case Alignment.topLeft:
+            //     overlayOffset =
+            //         Offset(-childParentData.size!.width, -size.height);
+            //     break;
+            //   case Alignment.topCenter:
+            //     overlayOffset = Offset(
+            //       -childParentData.size!.width / 2 + size.width / 2,
+            //       -size.height,
+            //     );
+            //     break;
+            //   case Alignment.topRight:
+            //     overlayOffset = Offset(size.width, -size.height);
+            //     break;
+            //   case Alignment.centerLeft:
+            //     overlayOffset = Offset(
+            //       -childParentData.size!.width,
+            //       -childParentData.size!.height / 2 + size.height / 2,
+            //     );
+            //     break;
+            //   case Alignment.center:
+            //     overlayOffset = Offset(
+            //       -childParentData.size!.width / 2 + size.width / 2,
+            //       -childParentData.size!.height / 2 + size.height / 2,
+            //     );
+            //     break;
+            //   case Alignment.centerRight:
+            //     overlayOffset = Offset(
+            //       size.width,
+            //       -childParentData.size!.height / 2 + size.height / 2,
+            //     );
+            //     break;
+            //   case Alignment.bottomLeft:
+            //     overlayOffset =
+            //         Offset(-childParentData.size!.width, size.height);
+            //     break;
+            //   case Alignment.bottomCenter:
+            //     overlayOffset = Offset(
+            //         -childParentData.size!.width / 2 + size.width / 2,
+            //         size.height);
+            //     break;
+            //   case Alignment.bottomRight:
+            //     overlayOffset = Offset(size.width, size.height);
+            //     break;
+            // }
+            final alignmentFactor = Size(
+                childParentData.size!.width / 2 + size.width / 2,
+                childParentData.size!.height / 2 + size.height / 2);
+            overlayOffset = Offset(
+                -childParentData.size!.width / 2 + size.width / 2,
+                -childParentData.size!.height / 2 + size.height / 2);
+
+            child.paint(
+              context,
+              offset +
+                  overlayOffset +
+                  Offset(
+                    childParentData.alignment!.x * alignmentFactor.width,
+                    childParentData.alignment!.y * alignmentFactor.height,
+                  ),
+              // offset,
+            );
+          }
           break;
         case null:
           break;
@@ -102,6 +173,11 @@ class _RenderWizardRenderObject extends RenderBox
     RenderBox? child = firstChild;
     while (child != null) {
       final childParentData = child.parentData! as WizardParentData;
+
+      if (childParentData.id == WizardObjectId.overlay) {
+        childParentData.offset -= Offset(
+            childParentData.size!.width / 2, childParentData.size!.height / 2);
+      }
 
       child = childParentData.nextSibling;
     }
@@ -135,9 +211,15 @@ class _RenderWizardRenderObject extends RenderBox
         height = max(child.size.height, height);
       }
 
+      childParentData.size = child.size;
       child = childParentData.nextSibling;
     }
 
     return Size(width, height);
+  }
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
+    return defaultHitTestChildren(result, position: position);
   }
 }

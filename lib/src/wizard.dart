@@ -89,13 +89,30 @@ class WizardState extends State<Wizard> {
     return OverlayEntry(
       builder: (BuildContext context) {
         return Positioned(
+          // This is for the position of the child
           top: _wizardNode.offset.dy,
           left: _wizardNode.offset.dx,
           child: Material(
             color: Colors.transparent,
-
-            ///! This should return [WizardRenderObject]
-            child: widget.overlay ?? Container(),
+            child: WizardRenderObjectWidget(
+              active: active,
+              // `overlays` have to pass their alignments inside the
+              // [WizardRenderObjectWidget]
+              overlays: widget.overlays.map((overlay) {
+                return overlay.builder?.call(
+                      _wizardNode.offset,
+                      _wizardNode.size,
+                    ) ??
+                    overlay.child!;
+              }).toList(),
+              child: Focus(
+                focusNode: _wizardNode,
+                child: widget.child,
+                // skipTraversal: !started,
+                // canRequestFocus: started,
+              ),
+              background: widget.background ?? Container(),
+            ),
           ),
         );
       },
@@ -109,8 +126,13 @@ class WizardState extends State<Wizard> {
     //? This should be displayed in an Overlay when active
     return WizardRenderObjectWidget(
       active: active,
-      overlayAlignment: widget.overlayAlignment,
-      overlay: widget.overlay,
+      overlays: widget.overlays.map((overlay) {
+        return overlay.builder?.call(
+              _wizardNode.offset,
+              _wizardNode.size,
+            ) ??
+            overlay.child!;
+      }).toList(),
       child: Focus(
         focusNode: _wizardNode,
         child: widget.child,
@@ -118,7 +140,6 @@ class WizardState extends State<Wizard> {
         // canRequestFocus: started,
       ),
       background: widget.background ?? Container(),
-      // overlay: widget.overlay ?? Container(),
     );
   }
 }
