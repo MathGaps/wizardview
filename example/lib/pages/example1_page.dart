@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:example/pages/example2_page.dart';
 import 'package:flutter/material.dart';
 import 'package:wizardview/wizardview.dart';
 
@@ -27,20 +28,22 @@ Color interpolateColour(double n) {
   }
 }
 
-class HomePage extends StatefulWidget {
-  HomePage({Key? key, required this.title}) : super(key: key);
+class Example1Page extends StatefulWidget {
+  Example1Page({Key? key, required this.title}) : super(key: key);
 
   final String title;
 
   @override
-  _HomePageState createState() => _HomePageState();
+  _Example1PageState createState() => _Example1PageState();
 }
 
-class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
+class _Example1PageState extends State<Example1Page>
+    with TickerProviderStateMixin {
   late final List<String> _shuffledAlphabet;
   final Map<String, AnimationController> _controllers = {};
   final Map<String, Animation<double>> _animations = {};
   final Tween<double> _tween = Tween(begin: 0, end: 1.0);
+  final GlobalKey<WizardScopeState> _key = GlobalKey<WizardScopeState>();
 
   @override
   void initState() {
@@ -77,12 +80,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
 
     return WizardScope(
+      key: _key,
       policy: OrderedTraversalPolicy(),
       actions: Row(
         children: [
           Builder(builder: (context) {
             return ElevatedButton(
-                onPressed: () => _end(context), child: Text('Skip Tutorial'));
+                onPressed: () => _key.currentState?.end(),
+                child: Text('Skip Tutorial'));
           })
           // _SkipTutorialButton(),
         ],
@@ -91,7 +96,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       onEnd: () => debugPrint('[WizardView] has ended'),
       child: Scaffold(
         appBar: AppBar(
-          title: Text(widget.title),
+          title: Text('WizardView Example1'),
+          actions: [
+            IconButton(
+                onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (BuildContext context) => Example2Page())),
+                icon: Icon(Icons.refresh))
+          ],
         ),
         body: Builder(
           builder: (BuildContext context) {
@@ -145,7 +158,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   .copyWith(color: colour),
                             ),
                           ),
-                          activeChild: Text('coooool'),
                           background: background,
                           overlays: [
                             WizardOverlay.builder(

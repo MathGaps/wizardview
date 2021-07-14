@@ -123,7 +123,13 @@ class WizardState extends State<Wizard> {
                 );
               }).toList(),
               child: widget.activeChild ?? widget.child,
-              background: widget.background ?? Container(),
+              background: widget.background ??
+                  context
+                      .findAncestorStateOfType<WizardScopeState>()
+                      ?.background ??
+                  Container(
+                    child: Text('[WizardScopeState] not found'),
+                  ),
             ),
           ),
         );
@@ -133,8 +139,8 @@ class WizardState extends State<Wizard> {
 
   @override
   Widget build(BuildContext context) {
-    return Offstage(
-      offstage: active,
+    return Opacity(
+      opacity: active ? 0 : 1,
       child: Focus(
         focusNode: _wizardNode,
         child: widget.child,

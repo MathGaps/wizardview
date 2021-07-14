@@ -89,6 +89,8 @@ class WizardScopeState extends State<WizardScope> {
     }
   }
 
+  Widget? get background => widget.background;
+
   /// Start the [WizardScope] traversal, or move on to the next object to focus if
   /// a traversal is ongoing
   Future<void> next() async {
@@ -167,26 +169,15 @@ class WizardScopeState extends State<WizardScope> {
   }
 
   void end() async {
+    debugPrint('[WizardScopeNode] end()');
     _history.clear();
-    _node.unfocus();
     _actionsOverlay?.remove();
     _focussedNode?.unfocus();
+    _node.requestFocus();
     await _focussedNode?.state?.onNodeEnd();
+    _started.value = false;
+    _currentOverlayEntry?.remove();
     widget.onEnd?.call();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return _InheritedWizardScope(
-      data: this,
-      child: FocusScope(
-        node: _node,
-        child: FocusTraversalGroup(
-          policy: widget.policy,
-          child: widget.child,
-        ),
-      ),
-    );
   }
 
   void _inflateActionsOverlay() {
@@ -199,6 +190,22 @@ class WizardScopeState extends State<WizardScope> {
           child: Padding(
             padding: widget.actionsPadding,
             child: widget.actions,
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _InheritedWizardScope(
+      data: this,
+      child: Builder(
+        builder: (BuildContext context) => FocusScope(
+          node: _node,
+          child: FocusTraversalGroup(
+            policy: widget.policy,
+            child: widget.child,
           ),
         ),
       ),
