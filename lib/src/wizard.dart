@@ -108,20 +108,17 @@ class WizardState extends State<Wizard> {
               // `overlays` have to pass their alignments inside the
               // [WizardRenderObjectWidget]
               overlays: widget.overlays.map((overlay) {
-                final builtOverlay = overlay.builder?.call(
+                final builtWizardOverlay = overlay.builder?.call(
                   _wizardNode.offset,
                   _wizardNode.size,
                 );
+
                 return WizardParentDataWidget(
                   id: WizardObjectId.overlay,
                   alignment: overlay.alignment,
-
-                  ///TODO: Convert Positioned to a Rect (=> offset and size).
-                  /// you'll likely need to use [MediaQuery.of(context).size] in
-                  /// order to compute this.
-                  overlayOffset: builtOverlay?.offset,
-                  overlaySize: builtOverlay?.size,
-                  child: builtOverlay?.child ?? overlay.child!,
+                  overlayOffset: builtWizardOverlay?.offset,
+                  overlaySize: builtWizardOverlay?.size,
+                  child: builtWizardOverlay?.child ?? overlay.child!,
                 );
               }).toList(),
               //? The [Focus] child was removed here because we can't properly
@@ -142,9 +139,12 @@ class WizardState extends State<Wizard> {
 
   @override
   Widget build(BuildContext context) {
-    return Focus(
-      focusNode: _wizardNode,
-      child: widget.child,
+    return Offstage(
+      offstage: active,
+      child: Focus(
+        focusNode: _wizardNode,
+        child: widget.child,
+      ),
     );
 
     //? No need to display anything other than which should be the focus child

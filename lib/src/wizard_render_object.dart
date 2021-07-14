@@ -87,23 +87,23 @@ class _RenderWizardRenderObject extends RenderBox
           break;
         case WizardObjectId.overlay:
           if (active) {
-            late Offset overlayOffset;
+            late Offset centeringOffset;
 
             if (childParentData.alignment == null) {
-              /// TODO: paint using overlayOffset etc.
-              child.paint(context, offset);
+              child.paint(
+                  context, childParentData.overlayOffset ?? Offset.zero);
             } else {
               final alignmentFactor = Size(
                   childParentData.size!.width / 2 + size.width / 2,
                   childParentData.size!.height / 2 + size.height / 2);
-              overlayOffset = Offset(
+              centeringOffset = Offset(
                   -childParentData.size!.width / 2 + size.width / 2,
                   -childParentData.size!.height / 2 + size.height / 2);
 
               child.paint(
                 context,
                 offset +
-                    overlayOffset +
+                    centeringOffset +
                     Offset(
                       childParentData.alignment!.x * alignmentFactor.width,
                       childParentData.alignment!.y * alignmentFactor.height,

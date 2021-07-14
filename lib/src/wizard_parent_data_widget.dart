@@ -32,7 +32,6 @@ class WizardParentDataWidget extends ParentDataWidget<WizardParentData> {
   final Offset? overlayOffset;
   final Size? overlaySize;
 
-  /// TODO: apply overlayOffset etc
   @override
   void applyParentData(RenderObject renderObject) {
     final parentData = renderObject.parentData as WizardParentData;
@@ -47,6 +46,13 @@ class WizardParentDataWidget extends ParentDataWidget<WizardParentData> {
 
     if (parentData.offset != offset) {
       parentData.offset = offset ?? Offset.zero;
+    }
+
+    if (parentData.overlayOffset != overlayOffset) {
+      parentData.overlayOffset = overlayOffset;
+    }
+    if (parentData.overlaySize != overlaySize) {
+      parentData.overlaySize = overlaySize;
     }
 
     final targetObject = renderObject.parent;

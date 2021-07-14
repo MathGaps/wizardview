@@ -17,14 +17,18 @@ class WizardOverlay {
         builder = builder,
         child = null;
 
+  /// A builder function which provides the `offset` and `size` of the focused child
   final OverlayBuilder? builder;
   final Widget? child;
   final Alignment? alignment;
 }
 
 class BuiltWizardOverlay {
-  //TODO:
-  BuiltWizardOverlay(this.child, this.offset, this.size);
+  BuiltWizardOverlay({
+    required this.child,
+    required this.offset,
+    required this.size,
+  });
 
   final Widget child;
   final Offset offset;

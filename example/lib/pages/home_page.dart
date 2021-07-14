@@ -145,23 +145,27 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           overlays: [
                             WizardOverlay.builder(
                               builder: (Offset offset, Size size) {
-                                return Transform.scale(
-                                  scale: _animations[c]!.value,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                        color: Theme.of(context).canvasColor,
-                                        borderRadius: BorderRadius.only(
-                                          bottomRight: Radius.circular(10),
-                                          bottomLeft: Radius.circular(10),
-                                          topRight: Radius.circular(10),
-                                        ),
-                                        boxShadow: boxShadow),
-                                    padding: padding,
-                                    child: Text(
-                                      'Other step ${c.toUpperCase()}',
-                                      style: textStyle,
+                                return BuiltWizardOverlay(
+                                  child: Transform.scale(
+                                    scale: _animations[c]!.value,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                          color: Theme.of(context).canvasColor,
+                                          borderRadius: BorderRadius.only(
+                                            bottomRight: Radius.circular(10),
+                                            bottomLeft: Radius.circular(10),
+                                            topRight: Radius.circular(10),
+                                          ),
+                                          boxShadow: boxShadow),
+                                      padding: padding,
+                                      child: Text(
+                                        'builder ${c.toUpperCase()}',
+                                        style: textStyle,
+                                      ),
                                     ),
                                   ),
+                                  offset: offset + Offset(100, 20),
+                                  size: Size(100, 100),
                                 );
                               },
                             ),
