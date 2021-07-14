@@ -19,16 +19,31 @@ class WizardScope extends StatefulWidget {
     this.onEnd,
     this.actions,
     this.actionsAlignment = Alignment.bottomRight,
+    this.actionsPadding = const EdgeInsets.all(20),
     Key? key,
   }) : super(key: key);
 
   final Widget child;
+
+  ///
   final Widget? background;
+
   final FocusTraversalPolicy? policy;
+
+  /// Executed before traversing through all of its [Wizard] children
   final WizardCallback? onStart;
+
+  /// Executed after traversing through all of its [Wizard] children
   final WizardCallback? onEnd;
-  final List<Widget>? actions;
+
+  /// Widgets to be displayed on the overlay, supposedly to assist with
+  /// [Wizard] traversal
+  final Widget? actions;
+
+  /// Alignment of the `actions` widgets
   final Alignment actionsAlignment;
+
+  final EdgeInsets actionsPadding;
 
   static WizardScopeState of(BuildContext context) {
     return (context.dependOnInheritedWidgetOfExactType<_InheritedWizardScope>()
@@ -45,10 +60,18 @@ class WizardScopeState extends State<WizardScope> {
     debugLabel: 'WizardScope',
   );
 
+  /// The [WizardNode] currently in focus
   WizardNode? _focussedNode;
-  bool get started => _started.value;
+
+  /// Keeps track of the already visited [WizardNode]s
   final List<WizardNode> _history = [];
+
+  /// Flag used to make sure [WizardNode]s do not interfere with the focus
+  /// traversal while [WizardScope] traversal is inactive
+  bool get started => _started.value;
   ValueNotifier<bool> _started = ValueNotifier(false);
+
+  /// Reference to the `action` widgets for latter cleanup
   OverlayEntry? _actionsOverlay;
 
   /// Reference to the currently presented overlay, we need this to call
@@ -62,6 +85,12 @@ class WizardScopeState extends State<WizardScope> {
     }
   }
 
+  // Future<void> showIntro() {
+  //   Future<bool> done = Future();
+  // }
+
+  /// Start the [WizardScope] traversal, or move on to the next object to focus if
+  /// traversal is ongoing
   Future<void> next() async {
     debugPrint('[WizardScopeState] next()');
 
@@ -69,6 +98,7 @@ class WizardScopeState extends State<WizardScope> {
       _started.value = true;
 
       _inflateActionsOverlay();
+
       await widget.onStart?.call();
     } else {
       await _focussedNode?.state?.onNodeEnd();
@@ -93,6 +123,7 @@ class WizardScopeState extends State<WizardScope> {
     do {
       if (!_node.nextFocus() ||
           history.contains(focussedNode = _node.focusedChild)) {
+        _currentOverlayEntry = null;
         return end();
       }
     } while (focussedNode is! WizardNode);
@@ -100,16 +131,17 @@ class WizardScopeState extends State<WizardScope> {
 
     debugPrint('[WizardScopeState] WizardNode ${_history.length} found');
 
-    focussedNode.state!.active = true;
+    _focussedNode!.state!.active = true;
     Overlay.of(context)?.insert(
-      _currentOverlayEntry = focussedNode.state!.overlayEntry(
-        background: widget.background,
-      ),
-    );
+        _currentOverlayEntry = _focussedNode!.state!.overlayEntry(
+          background: widget.background,
+        ),
+        below: _actionsOverlay);
     setState(() {});
-    await focussedNode.state!.onNodeStart();
+    await _focussedNode!.state!.onNodeStart();
   }
 
+  /// Re-focus on the previously focused node
   void prev() async {
     if (_history.isEmpty) {
       end();
@@ -172,8 +204,9 @@ class WizardScopeState extends State<WizardScope> {
       _actionsOverlay = OverlayEntry(
         builder: (BuildContext context) => Align(
           alignment: widget.actionsAlignment,
-          child: Row(
-            children: widget.actions!,
+          child: Padding(
+            padding: widget.actionsPadding,
+            child: widget.actions,
           ),
         ),
       ),

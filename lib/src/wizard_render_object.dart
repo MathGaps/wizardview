@@ -81,58 +81,11 @@ class _RenderWizardRenderObject extends RenderBox
           child.paint(context, offset);
           break;
         case WizardObjectId.background:
-          // ? Assuming background covers the whole screen, base it at [Offset.zero]
           if (active) child.paint(context, Offset.zero);
           break;
         case WizardObjectId.overlay:
           if (active) {
             late Offset overlayOffset;
-
-            // switch (overlayAlignment) {
-            //   case Alignment.topLeft:
-            //     overlayOffset =
-            //         Offset(-childParentData.size!.width, -size.height);
-            //     break;
-            //   case Alignment.topCenter:
-            //     overlayOffset = Offset(
-            //       -childParentData.size!.width / 2 + size.width / 2,
-            //       -size.height,
-            //     );
-            //     break;
-            //   case Alignment.topRight:
-            //     overlayOffset = Offset(size.width, -size.height);
-            //     break;
-            //   case Alignment.centerLeft:
-            //     overlayOffset = Offset(
-            //       -childParentData.size!.width,
-            //       -childParentData.size!.height / 2 + size.height / 2,
-            //     );
-            //     break;
-            //   case Alignment.center:
-            //     overlayOffset = Offset(
-            //       -childParentData.size!.width / 2 + size.width / 2,
-            //       -childParentData.size!.height / 2 + size.height / 2,
-            //     );
-            //     break;
-            //   case Alignment.centerRight:
-            //     overlayOffset = Offset(
-            //       size.width,
-            //       -childParentData.size!.height / 2 + size.height / 2,
-            //     );
-            //     break;
-            //   case Alignment.bottomLeft:
-            //     overlayOffset =
-            //         Offset(-childParentData.size!.width, size.height);
-            //     break;
-            //   case Alignment.bottomCenter:
-            //     overlayOffset = Offset(
-            //         -childParentData.size!.width / 2 + size.width / 2,
-            //         size.height);
-            //     break;
-            //   case Alignment.bottomRight:
-            //     overlayOffset = Offset(size.width, size.height);
-            //     break;
-            // }
             final alignmentFactor = Size(
                 childParentData.size!.width / 2 + size.width / 2,
                 childParentData.size!.height / 2 + size.height / 2);
@@ -148,7 +101,6 @@ class _RenderWizardRenderObject extends RenderBox
                     childParentData.alignment!.x * alignmentFactor.width,
                     childParentData.alignment!.y * alignmentFactor.height,
                   ),
-              // offset,
             );
           }
           break;

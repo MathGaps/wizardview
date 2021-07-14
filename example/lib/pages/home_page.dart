@@ -72,11 +72,17 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     final background = Container(
       height: MediaQuery.of(context).size.height,
       width: MediaQuery.of(context).size.width,
-      color: Colors.black26,
+      color: Colors.black87,
     );
 
     return WizardScope(
       policy: OrderedTraversalPolicy(),
+      actions: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          ElevatedButton(onPressed: () {}, child: Text('Skip Tutorial'))
+        ],
+      ),
       onStart: () => debugPrint('[WizardView] has started'),
       onEnd: () => debugPrint('[WizardView] has ended'),
       child: Scaffold(
@@ -126,7 +132,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         order: LexicalFocusOrder(c),
                         child: Wizard(
                           child: GestureDetector(
-                            onTap: () => debugPrint('tapped'),
+                            onTap: () => WizardScope.of(context).next(),
                             child: Text(
                               c,
                               style: Theme.of(context)
@@ -137,6 +143,28 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           ),
                           background: background,
                           overlays: [
+                            WizardOverlay.builder(
+                              builder: (Offset offset, Size size) {
+                                return Transform.scale(
+                                  scale: _animations[c]!.value,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                        color: Theme.of(context).canvasColor,
+                                        borderRadius: BorderRadius.only(
+                                          bottomRight: Radius.circular(10),
+                                          bottomLeft: Radius.circular(10),
+                                          topRight: Radius.circular(10),
+                                        ),
+                                        boxShadow: boxShadow),
+                                    padding: padding,
+                                    child: Text(
+                                      'Other step ${c.toUpperCase()}',
+                                      style: textStyle,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
                             WizardOverlay(
                               child: Transform.scale(
                                 scale: _animations[c]!.value,
@@ -151,7 +179,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                       boxShadow: boxShadow),
                                   padding: padding,
                                   child: Text(
-                                    'Step ${c.toUpperCase()}',
+                                    'Other step ${c.toUpperCase()}',
                                     style: textStyle,
                                   ),
                                 ),

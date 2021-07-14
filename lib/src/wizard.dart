@@ -8,17 +8,16 @@ import 'package:wizardview/src/wizard_render_object.dart';
 
 import 'wizard_scope.dart';
 
-/// Represents an indiviudal node in the Feature Discovery.
-///
-/// [Wizard] manages a [FocusNode], which, when instantiated; should be a
-/// descendant of a [WizardScope].
-
 class WizardNode = FocusNode with WizardNodeMixin;
 
 extension WizardNodeX on WizardNode {
   WizardState? get state => context?.findAncestorStateOfType<WizardState>();
 }
 
+/// Represents an indiviudal node in the Feature Discovery.
+///
+/// [Wizard] manages a [FocusNode], which, when instantiated; should be a
+/// descendant of a [WizardScope].
 class Wizard extends StatefulWidget {
   const Wizard({
     required this.child,
@@ -38,8 +37,14 @@ class Wizard extends StatefulWidget {
 
   /// The widget to be focused
   final Widget child;
+
   final Widget? activeChild;
+
+  /// Flag for if this [Wizard] should render the focused child
   final bool renderChild;
+
+  /// A list of [WizardOverlay] objects which contain rendering information
+  /// about the overlays that you want to display
   final List<WizardOverlay> overlays;
 
   /// The widget to be shown behind the [child] and the [overlays]. Typically,
@@ -47,7 +52,10 @@ class Wizard extends StatefulWidget {
   /// effect
   final Widget? background;
 
+  /// Callback executed after focusing on a new node
   final WizardCallback? onNodeStart;
+
+  /// Callback executed before moving focus to the next node
   final WizardCallback? onNodeEnd;
 
   @override
@@ -90,7 +98,7 @@ class WizardState extends State<Wizard> {
     return OverlayEntry(
       builder: (BuildContext context) {
         return Positioned(
-          // This is for the position of the child
+          // This is for the position of the child to be focused
           top: _wizardNode.offset.dy,
           left: _wizardNode.offset.dx,
           child: Material(
@@ -110,12 +118,14 @@ class WizardState extends State<Wizard> {
                       overlay.child!,
                 );
               }).toList(),
-              child: Focus(
-                focusNode: _wizardNode,
-                child: widget.child,
-                // skipTraversal: !started,
-                // canRequestFocus: started,
-              ),
+              //? The [Focus] child was removed here because we can't properly
+              //? retrieve [WizardState] later on inside [WizardScope] since
+              //? _wizardNode will have a different [Focus] parent
+              // child: Focus(
+              //   focusNode: _wizardNode,
+              //   child: widget.child,
+              // ),
+              child: widget.child,
               background: widget.background ?? Container(),
             ),
           ),
@@ -126,32 +136,27 @@ class WizardState extends State<Wizard> {
 
   @override
   Widget build(BuildContext context) {
-    // final bool started = WizardScope.of(context).started;
-
-    //? This should be displayed in an Overlay when active
     return Focus(
       focusNode: _wizardNode,
       child: widget.child,
-      // skipTraversal: !started,
-      // canRequestFocus: started,
     );
 
-    return WizardRenderObjectWidget(
-      active: active,
-      overlays: widget.overlays.map((overlay) {
-        return overlay.builder?.call(
-              _wizardNode.offset,
-              _wizardNode.size,
-            ) ??
-            overlay.child!;
-      }).toList(),
-      child: Focus(
-        focusNode: _wizardNode,
-        child: widget.child,
-        // skipTraversal: !started,
-        // canRequestFocus: started,
-      ),
-      background: widget.background ?? Container(),
-    );
+    //? No need to display anything other than which should be the focus child
+    //? since everything happens inside [overlayEntry]
+    // return WizardRenderObjectWidget(
+    //   active: active,
+    //   overlays: widget.overlays.map((overlay) {
+    //     return overlay.builder?.call(
+    //           _wizardNode.offset,
+    //           _wizardNode.size,
+    //         ) ??
+    //         overlay.child!;
+    //   }).toList(),
+    //   child: Focus(
+    //     focusNode: _wizardNode,
+    //     child: widget.child,
+    //   ),
+    //   background: widget.background ?? Container(),
+    // );
   }
 }
