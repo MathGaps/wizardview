@@ -2,44 +2,29 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:wizardview/src/wizard_parent_data_widget.dart';
 
 ///! This is a Widget, not a RenderObject
 class WizardRenderObject extends MultiChildRenderObjectWidget {
   WizardRenderObject({
     required Widget child,
     required Widget background,
-    // required Widget overlay,
+    required Widget overlay,
     required this.active,
-    required this.overlayAlignment,
     Key? key,
   }) : super(
           key: key,
           children: [
-            WizardParentDataWidget(
-              id: WizardObjectId.background,
-              child: RepaintBoundary(child: background),
-            ),
-            // WizardParentDataWidget(
-            //   id: WizardObjectId.overlay,
-            //   child: RepaintBoundary(child: overlay),
-            // ),
-            WizardParentDataWidget(
-              id: WizardObjectId.child,
-              child: RepaintBoundary(child: child),
-            ),
+            background,
+            child,
+            overlay,
           ],
         );
 
   final bool active;
-  final Alignment overlayAlignment;
 
   @override
   _RenderWizardRenderObject createRenderObject(BuildContext context) {
-    return _RenderWizardRenderObject(
-      active: active,
-      overlayAlignment: overlayAlignment,
-    );
+    return _RenderWizardRenderObject(active: active);
   }
 
   @override
@@ -47,9 +32,7 @@ class WizardRenderObject extends MultiChildRenderObjectWidget {
     BuildContext context,
     _RenderWizardRenderObject renderObject,
   ) {
-    renderObject
-      ..active = active
-      ..overlayAlignment = overlayAlignment;
+    renderObject..active = active;
   }
 }
 
@@ -61,34 +44,19 @@ enum WizardObjectId {
 
 class WizardParentData extends ContainerBoxParentData<RenderBox> {
   WizardObjectId? id;
-  Size? size;
 }
 
 class _RenderWizardRenderObject extends RenderBox
     with
         ContainerRenderObjectMixin<RenderBox, WizardParentData>,
         RenderBoxContainerDefaultsMixin<RenderBox, WizardParentData> {
-  _RenderWizardRenderObject({
-    required bool active,
-    required Alignment overlayAlignment,
-  })  : _active = active,
-        _overlayAlignment = overlayAlignment;
+  _RenderWizardRenderObject({required bool active}) : _active = active;
 
   bool _active;
   bool get active => _active;
   set active(bool active) {
     if (_active == active) return;
     _active = active;
-    markNeedsPaint();
-  }
-
-  Alignment _overlayAlignment;
-  Alignment get overlayAlignment => _overlayAlignment;
-  set overlayAlignment(Alignment overlayAlignment) {
-    if (_overlayAlignment == overlayAlignment) return;
-
-    _overlayAlignment = overlayAlignment;
-    markNeedsLayout();
   }
 
   /// ParentData
@@ -114,72 +82,7 @@ class _RenderWizardRenderObject extends RenderBox
           if (active) child.paint(context, Offset.zero);
           break;
         case WizardObjectId.overlay:
-          if (active) {
-            late Offset overlayOffset;
-
-            // switch (overlayAlignment) {
-            //   case Alignment.topLeft:
-            //     overlayOffset =
-            //         Offset(-childParentData.size!.width, -size.height);
-            //     break;
-            //   case Alignment.topCenter:
-            //     overlayOffset = Offset(
-            //       -childParentData.size!.width / 2 + size.width / 2,
-            //       -size.height,
-            //     );
-            //     break;
-            //   case Alignment.topRight:
-            //     overlayOffset = Offset(size.width, -size.height);
-            //     break;
-            //   case Alignment.centerLeft:
-            //     overlayOffset = Offset(
-            //       -childParentData.size!.width,
-            //       -childParentData.size!.height / 2 + size.height / 2,
-            //     );
-            //     break;
-            //   case Alignment.center:
-            //     overlayOffset = Offset(
-            //       -childParentData.size!.width / 2 + size.width / 2,
-            //       -childParentData.size!.height / 2 + size.height / 2,
-            //     );
-            //     break;
-            //   case Alignment.centerRight:
-            //     overlayOffset = Offset(
-            //       size.width,
-            //       -childParentData.size!.height / 2 + size.height / 2,
-            //     );
-            //     break;
-            //   case Alignment.bottomLeft:
-            //     overlayOffset =
-            //         Offset(-childParentData.size!.width, size.height);
-            //     break;
-            //   case Alignment.bottomCenter:
-            //     overlayOffset = Offset(
-            //         -childParentData.size!.width / 2 + size.width / 2,
-            //         size.height);
-            //     break;
-            //   case Alignment.bottomRight:
-            //     overlayOffset = Offset(size.width, size.height);
-            //     break;
-            // }
-            final alignmentFactor = Size(
-                childParentData.size!.width / 2 + size.width / 2,
-                childParentData.size!.height / 2 + size.height / 2);
-            overlayOffset = Offset(
-                -childParentData.size!.width / 2 + size.width / 2,
-                -childParentData.size!.height / 2 + size.height / 2);
-
-            child.paint(
-              context,
-              offset +
-                  overlayOffset +
-                  Offset(
-                    overlayAlignment.x * alignmentFactor.width,
-                    overlayAlignment.y * alignmentFactor.height,
-                  ),
-              // offset,
-            );
-          }
+          if (active) child.paint(context, offset - Offset(12.5, 12.5));
           break;
         case null:
           break;
@@ -199,11 +102,6 @@ class _RenderWizardRenderObject extends RenderBox
     RenderBox? child = firstChild;
     while (child != null) {
       final childParentData = child.parentData! as WizardParentData;
-
-      if (childParentData.id == WizardObjectId.overlay) {
-        childParentData.offset -= Offset(
-            childParentData.size!.width / 2, childParentData.size!.height / 2);
-      }
 
       child = childParentData.nextSibling;
     }
@@ -230,22 +128,16 @@ class _RenderWizardRenderObject extends RenderBox
         );
       }
 
-      ///! Need to think about this. If we change the size beyond the size of the child,
-      ///! it'll cause inconsistencies with how the child is rendered
+      /// ! Need to think about this. If we change the size beyond the size of the child,
+      /// it'll cause inconsistencies with how the child is rendered
       if (childParentData.id == WizardObjectId.child) {
         width = max(child.size.width, width);
         height = max(child.size.height, height);
       }
 
-      childParentData.size = child.size;
       child = childParentData.nextSibling;
     }
 
     return Size(width, height);
-  }
-
-  @override
-  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
-    return defaultHitTestChildren(result, position: position);
   }
 }

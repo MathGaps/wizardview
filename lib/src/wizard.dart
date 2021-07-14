@@ -17,6 +17,8 @@ extension WizardNodeX on WizardNode {
   WizardState? get state => context?.findAncestorStateOfType<WizardState>();
 }
 
+typedef OverlayBuilder = Widget Function(Offset offset, Size size);
+
 class Wizard extends StatefulWidget {
   const Wizard({
     Key? key,
@@ -25,8 +27,22 @@ class Wizard extends StatefulWidget {
     this.overlay,
     this.onNodeStart,
     this.onNodeEnd,
-    this.overlayAlignment = Alignment.bottomRight,
-  }) : super(key: key);
+    Alignment overlayAlignment = Alignment.bottomRight,
+  })  : overlayAlignment = overlayAlignment,
+        overlayBuilder = null,
+        super(key: key);
+
+  const Wizard.builder({
+    Key? key,
+    required this.child,
+    required OverlayBuilder overlayBuilder,
+    this.background,
+    this.overlay,
+    this.onNodeStart,
+    this.onNodeEnd,
+  })  : overlayAlignment = null,
+        overlayBuilder = overlayBuilder,
+        super(key: key);
 
   /// The widget to be focused
   final Widget child;
@@ -44,7 +60,8 @@ class Wizard extends StatefulWidget {
 
   final WizardCallback? onNodeEnd;
 
-  final Alignment overlayAlignment;
+  final Alignment? overlayAlignment;
+  final OverlayBuilder? overlayBuilder;
 
   @override
   WizardState createState() => WizardState();
@@ -82,16 +99,20 @@ class WizardState extends State<Wizard> {
     active = false;
   }
 
-  OverlayEntry get overlayEntry => OverlayEntry(
-        builder: (BuildContext context) => Positioned(
+  OverlayEntry get overlayEntry {
+    return OverlayEntry(
+      builder: (BuildContext context) {
+        return Positioned(
           top: _wizardNode.offset.dy,
           left: _wizardNode.offset.dx,
           child: Material(
             color: Colors.transparent,
             child: widget.overlay ?? Container(),
           ),
-        ),
-      );
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
