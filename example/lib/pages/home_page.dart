@@ -53,6 +53,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   void _prev(BuildContext context) => WizardScope.of(context).prev();
 
+  void _end(BuildContext context) => WizardScope.of(context).end();
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -78,12 +79,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     return WizardScope(
       policy: OrderedTraversalPolicy(),
       actions: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          ElevatedButton(onPressed: () {}, child: Text('Skip Tutorial'))
+          Builder(builder: (context) {
+            return ElevatedButton(
+                onPressed: () => _end(context), child: Text('Skip Tutorial'));
+          })
+          // _SkipTutorialButton(),
         ],
       ),
-      onStart: () => debugPrint('[WizardView] has started'),
+      onStart: () => showIntroductionDialog(),
       onEnd: () => debugPrint('[WizardView] has ended'),
       child: Scaffold(
         appBar: AppBar(
@@ -103,7 +107,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         x = cos(theta),
                         y = sin(theta);
                     final colour = interpolateColour(p);
-                    final constrastingColour = interpolateColour(1 - p);
+                    // final constrastingColour = interpolateColour(1 - p);
 
                     if (_controllers[c] == null) {
                       final controller = AnimationController(
@@ -141,6 +145,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   .copyWith(color: colour),
                             ),
                           ),
+                          activeChild: Text('coooool'),
                           background: background,
                           overlays: [
                             WizardOverlay.builder(
@@ -242,5 +247,44 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         ),
       ),
     );
+  }
+
+  Future<void> showIntroductionDialog() async {
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          actions: [
+            TextButton(
+              child: Text('Continue'),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+          ],
+          content: Column(
+            children: [
+              Text('WizardView'),
+              Text('Welcome to this WizardView example!')
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _SkipTutorialButton extends StatelessWidget {
+  const _SkipTutorialButton({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Builder(builder: (context) {
+      return ElevatedButton(
+          onPressed: () => WizardScope.of(context).end(),
+          child: Text('Skip Tutorial'));
+    });
   }
 }

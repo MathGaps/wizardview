@@ -23,11 +23,14 @@ class WizardScope extends StatefulWidget {
     Key? key,
   }) : super(key: key);
 
+  ///  The focusable [Widget]
   final Widget child;
 
-  ///
+  /// The [Widget] to be rendered behind the focused widget
   final Widget? background;
 
+  /// The [FocusTraversalPolicy] to be respected to determine the order in which
+  /// each [Wizard] is traversed
   final FocusTraversalPolicy? policy;
 
   /// Executed before traversing through all of its [Wizard] children
@@ -40,9 +43,10 @@ class WizardScope extends StatefulWidget {
   /// [Wizard] traversal
   final Widget? actions;
 
-  /// Alignment of the `actions` widgets
+  /// Alignment of the `actions` widget
   final Alignment actionsAlignment;
 
+  /// Padding for the `actions` widget
   final EdgeInsets actionsPadding;
 
   static WizardScopeState of(BuildContext context) {
@@ -85,24 +89,19 @@ class WizardScopeState extends State<WizardScope> {
     }
   }
 
-  // Future<void> showIntro() {
-  //   Future<bool> done = Future();
-  // }
-
   /// Start the [WizardScope] traversal, or move on to the next object to focus if
-  /// traversal is ongoing
+  /// a traversal is ongoing
   Future<void> next() async {
     debugPrint('[WizardScopeState] next()');
 
     if (!_started.value) {
       _started.value = true;
-
       _inflateActionsOverlay();
-
       await widget.onStart?.call();
     } else {
       await _focussedNode?.state?.onNodeEnd();
-      _currentOverlayEntry?.remove();
+      if (_currentOverlayEntry?.mounted ?? false)
+        _currentOverlayEntry?.remove();
       _focussedNode?.state?..active = false;
     }
 
@@ -129,15 +128,12 @@ class WizardScopeState extends State<WizardScope> {
     } while (focussedNode is! WizardNode);
     _history.add(_focussedNode = focussedNode);
 
-    debugPrint('[WizardScopeState] WizardNode ${_history.length} found');
-
     _focussedNode!.state!.active = true;
     Overlay.of(context)?.insert(
         _currentOverlayEntry = _focussedNode!.state!.overlayEntry(
           background: widget.background,
         ),
         below: _actionsOverlay);
-    setState(() {});
     await _focussedNode!.state!.onNodeStart();
   }
 
@@ -171,10 +167,8 @@ class WizardScopeState extends State<WizardScope> {
   }
 
   void end() async {
-    debugPrint('[WizardScopeState] end()');
     _history.clear();
     _node.unfocus();
-    _currentOverlayEntry?.remove();
     _actionsOverlay?.remove();
     _focussedNode?.unfocus();
     await _focussedNode?.state?.onNodeEnd();
@@ -187,8 +181,6 @@ class WizardScopeState extends State<WizardScope> {
       data: this,
       child: FocusScope(
         node: _node,
-        // skipTraversal: !started,
-        // canRequestFocus: started,
         child: FocusTraversalGroup(
           policy: widget.policy,
           child: widget.child,

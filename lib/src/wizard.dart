@@ -38,6 +38,8 @@ class Wizard extends StatefulWidget {
   /// The widget to be focused
   final Widget child;
 
+  /// An optional [Widget] to be shown instead of `child` when this [Wizard] is
+  /// in focus
   final Widget? activeChild;
 
   /// Flag for if this [Wizard] should render the focused child
@@ -98,7 +100,6 @@ class WizardState extends State<Wizard> {
     return OverlayEntry(
       builder: (BuildContext context) {
         return Positioned(
-          // This is for the position of the child to be focused
           top: _wizardNode.offset.dy,
           left: _wizardNode.offset.dx,
           child: Material(
@@ -121,14 +122,7 @@ class WizardState extends State<Wizard> {
                   child: builtWizardOverlay?.child ?? overlay.child!,
                 );
               }).toList(),
-              //? The [Focus] child was removed here because we can't properly
-              //? retrieve [WizardState] later on inside [WizardScope] since
-              //? _wizardNode will have a different [Focus] parent
-              // child: Focus(
-              //   focusNode: _wizardNode,
-              //   child: widget.child,
-              // ),
-              child: widget.child,
+              child: widget.activeChild ?? widget.child,
               background: widget.background ?? Container(),
             ),
           ),
@@ -146,23 +140,5 @@ class WizardState extends State<Wizard> {
         child: widget.child,
       ),
     );
-
-    //? No need to display anything other than which should be the focus child
-    //? since everything happens inside [overlayEntry]
-    // return WizardRenderObjectWidget(
-    //   active: active,
-    //   overlays: widget.overlays.map((overlay) {
-    //     return overlay.builder?.call(
-    //           _wizardNode.offset,
-    //           _wizardNode.size,
-    //         ) ??
-    //         overlay.child!;
-    //   }).toList(),
-    //   child: Focus(
-    //     focusNode: _wizardNode,
-    //     child: widget.child,
-    //   ),
-    //   background: widget.background ?? Container(),
-    // );
   }
 }
