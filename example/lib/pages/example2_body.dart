@@ -58,7 +58,7 @@ class _Example2BodyState extends State<Example2Body> {
                         ),
                       ),
                     ],
-                    background: background,
+                    // background: background,
                     child: SizedBox(
                       width: 300,
                       child: TextField(

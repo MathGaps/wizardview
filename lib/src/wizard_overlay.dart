@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-//TODO: Think of a better name here / a better approach
 typedef OverlayBuilder = BuiltWizardOverlay Function(Offset offset, Size size);
 
 class WizardOverlay {

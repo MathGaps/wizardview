@@ -51,7 +51,7 @@ class Wizard extends StatefulWidget {
 
   /// The widget to be shown behind the [child] and the [overlays]. Typically,
   /// an empty [Container] with `color: Colors.black12` to emulate a dimming
-  /// effect
+  /// effect. Can be set for all [Wizard] children through its parent [WizardScope]
   final Widget? background;
 
   /// Callback executed after focusing on a new node
@@ -97,8 +97,12 @@ class WizardState extends State<Wizard> {
   }
 
   OverlayEntry overlayEntry({Widget? background}) {
+    // get Cotnext here
+
+    // document why we need to provide the state (because the context wont necesarrily contain the WizardScope (overlay))
+
     return OverlayEntry(
-      builder: (BuildContext context) {
+      builder: (BuildContext overlayContext) {
         return Positioned(
           top: _wizardNode.offset.dy,
           left: _wizardNode.offset.dx,

@@ -30,7 +30,12 @@ class _Example2PageState extends State<Example2Page> {
       body: WizardScope(
         key: key,
         child: Example2Body(),
-        onEnd: () => showCongratulationsDialog(),
+        background: Container(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          color: Colors.amber,
+        ),
+        onEnd: (state) => showCongratulationsDialog(),
       ),
     );
   }

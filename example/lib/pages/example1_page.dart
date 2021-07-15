@@ -57,6 +57,7 @@ class _Example1PageState extends State<Example1Page>
   void _prev(BuildContext context) => WizardScope.of(context).prev();
 
   void _end(BuildContext context) => WizardScope.of(context).end();
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -80,20 +81,16 @@ class _Example1PageState extends State<Example1Page>
     );
 
     return WizardScope(
-      key: _key,
+      // key: _key,
       policy: OrderedTraversalPolicy(),
-      actions: Row(
+      actions: (state) => Row(
         children: [
-          Builder(builder: (context) {
-            return ElevatedButton(
-                onPressed: () => _key.currentState?.end(),
-                child: Text('Skip Tutorial'));
-          })
-          // _SkipTutorialButton(),
+          ElevatedButton(
+              onPressed: () => state.end(), child: Text('Skip Tutorial')),
         ],
       ),
-      onStart: () => showIntroductionDialog(),
-      onEnd: () => debugPrint('[WizardView] has ended'),
+      onStart: (_) => showIntroductionDialog(),
+      onEnd: (_) => debugPrint('[WizardView] has ended'),
       child: Scaffold(
         appBar: AppBar(
           title: Text('WizardView Example1'),
@@ -293,10 +290,13 @@ class _SkipTutorialButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Builder(builder: (context) {
-      return ElevatedButton(
+    return Builder(
+      builder: (context) {
+        return ElevatedButton(
           onPressed: () => WizardScope.of(context).end(),
-          child: Text('Skip Tutorial'));
-    });
+          child: Text('Skip Tutorial'),
+        );
+      },
+    );
   }
 }

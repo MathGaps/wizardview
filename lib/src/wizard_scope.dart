@@ -9,6 +9,7 @@ import 'package:wizardview/wizardview.dart';
 class WizardScopeNode = FocusScopeNode with WizardScopeNodeMixin;
 
 typedef WizardCallback = FutureOr<void> Function();
+typedef WizardStateCallback = FutureOr<void> Function(WizardScopeState);
 
 class WizardScope extends StatefulWidget {
   const WizardScope({
@@ -26,7 +27,10 @@ class WizardScope extends StatefulWidget {
   ///  The focusable [Widget]
   final Widget child;
 
-  /// The [Widget] to be rendered behind the focused widget
+  /// The [Widget] to be rendered behind the focused widget. This can be set on
+  /// the [WizardScope] itself to provide a background to all [Wizard] children.
+  /// The background can be overriden by each [Wizard] child through the child's
+  /// `background` property and have this as the fallback
   final Widget? background;
 
   /// The [FocusTraversalPolicy] to be respected to determine the order in which
@@ -34,14 +38,17 @@ class WizardScope extends StatefulWidget {
   final FocusTraversalPolicy? policy;
 
   /// Executed before traversing through all of its [Wizard] children
-  final WizardCallback? onStart;
+  final WizardStateCallback? onStart;
 
   /// Executed after traversing through all of its [Wizard] children
-  final WizardCallback? onEnd;
+  final WizardStateCallback? onEnd;
 
   /// Widgets to be displayed on the overlay, supposedly to assist with
-  /// [Wizard] traversal
-  final Widget? actions;
+  /// [Wizard] traversal. We needed to provide the `state` here because if we
+  /// pass the `context` here, it wont necesarrily contain the [WizardScope]
+  /// instance that we want because `actions` are being rendered in an
+  /// [OverlayState]
+  final Widget Function(WizardScopeState state)? actions;
 
   /// Alignment of the `actions` widget
   final Alignment actionsAlignment;
@@ -89,17 +96,17 @@ class WizardScopeState extends State<WizardScope> {
     }
   }
 
+  /// Getter used by [Wizard] children to obtain a background [Widget] if none
+  /// has been set for that child
   Widget? get background => widget.background;
 
   /// Start the [WizardScope] traversal, or move on to the next object to focus if
   /// a traversal is ongoing
   Future<void> next() async {
-    debugPrint('[WizardScopeState] next()');
-
     if (!_started.value) {
       _started.value = true;
       _inflateActionsOverlay();
-      await widget.onStart?.call();
+      await widget.onStart?.call(this);
     } else {
       await _focussedNode?.state?.onNodeEnd();
       if (_currentOverlayEntry?.mounted ?? false)
@@ -115,7 +122,7 @@ class WizardScopeState extends State<WizardScope> {
     if (!_node.hasFocus) {
       _node.requestFocus();
 
-      // Wait for the next frame to ensure [_node] has received focus since
+      // Waits for the next frame to ensure [_node] has received focus since
       // notification may lag for up to a frame
       await Future.delayed(Duration(seconds: 0));
     }
@@ -168,6 +175,7 @@ class WizardScopeState extends State<WizardScope> {
     await _history.last.state?.onNodeStart();
   }
 
+  /// Ends the current [WizardScope] traversal
   void end() async {
     debugPrint('[WizardScopeNode] end()');
     _history.clear();
@@ -177,19 +185,20 @@ class WizardScopeState extends State<WizardScope> {
     await _focussedNode?.state?.onNodeEnd();
     _started.value = false;
     _currentOverlayEntry?.remove();
-    widget.onEnd?.call();
+    widget.onEnd?.call(this);
   }
 
+  /// Insert an [OverlayEntry] for the provided `actions` [Widget]
   void _inflateActionsOverlay() {
     if (widget.actions == null) return;
 
     Overlay.of(context)?.insert(
       _actionsOverlay = OverlayEntry(
-        builder: (BuildContext context) => Align(
+        builder: (BuildContext overlayContext) => Align(
           alignment: widget.actionsAlignment,
           child: Padding(
             padding: widget.actionsPadding,
-            child: widget.actions,
+            child: widget.actions?.call(this),
           ),
         ),
       ),
@@ -200,13 +209,11 @@ class WizardScopeState extends State<WizardScope> {
   Widget build(BuildContext context) {
     return _InheritedWizardScope(
       data: this,
-      child: Builder(
-        builder: (BuildContext context) => FocusScope(
-          node: _node,
-          child: FocusTraversalGroup(
-            policy: widget.policy,
-            child: widget.child,
-          ),
+      child: FocusScope(
+        node: _node,
+        child: FocusTraversalGroup(
+          policy: widget.policy,
+          child: widget.child,
         ),
       ),
     );
