@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:wizardview/src/mixins/wizard_scope_node_mixin.dart';
 import 'package:wizardview/wizardview.dart';
 
-//TODO: #1 Documentation on WizardScope
-
 class WizardScopeNode = FocusScopeNode with WizardScopeNodeMixin;
 
 typedef WizardCallback = FutureOr<void> Function();

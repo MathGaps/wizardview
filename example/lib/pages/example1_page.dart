@@ -43,7 +43,6 @@ class _Example1PageState extends State<Example1Page>
   final Map<String, AnimationController> _controllers = {};
   final Map<String, Animation<double>> _animations = {};
   final Tween<double> _tween = Tween(begin: 0, end: 1.0);
-  final GlobalKey<WizardScopeState> _key = GlobalKey<WizardScopeState>();
 
   @override
   void initState() {
@@ -55,8 +54,6 @@ class _Example1PageState extends State<Example1Page>
   void _next(BuildContext context) => WizardScope.of(context).next();
 
   void _prev(BuildContext context) => WizardScope.of(context).prev();
-
-  void _end(BuildContext context) => WizardScope.of(context).end();
 
   @override
   Widget build(BuildContext context) {
@@ -277,24 +274,6 @@ class _Example1PageState extends State<Example1Page>
               Text('Welcome to this WizardView example!')
             ],
           ),
-        );
-      },
-    );
-  }
-}
-
-class _SkipTutorialButton extends StatelessWidget {
-  const _SkipTutorialButton({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Builder(
-      builder: (context) {
-        return ElevatedButton(
-          onPressed: () => WizardScope.of(context).end(),
-          child: Text('Skip Tutorial'),
         );
       },
     );
