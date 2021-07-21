@@ -205,11 +205,14 @@ class WizardScopeState extends State<WizardScope> {
 
   @override
   Widget build(BuildContext context) {
-    return FocusScope(
-      node: _node,
-      child: FocusTraversalGroup(
-        policy: widget.policy,
-        child: _InheritedWizardScope(data: this, child: widget.child),
+    return _InheritedWizardScope(
+      data: this,
+      child: FocusScope(
+        node: _node,
+        child: FocusTraversalGroup(
+          policy: widget.policy,
+          child: widget.child,
+        ),
       ),
     );
   }
