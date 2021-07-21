@@ -14,7 +14,6 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.grey,
       ),
       home: Example1Page(title: 'WizardView Example'),
-      // home: Example2Page(),
     );
   }
 }

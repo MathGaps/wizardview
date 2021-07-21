@@ -218,7 +218,7 @@ class WizardScopeState extends State<WizardScope> {
   }
 }
 
-class _InheritedWizardScope extends InheritedNotifier {
+class _InheritedWizardScope extends InheritedWidget {
   _InheritedWizardScope({
     Key? key,
     required this.data,
