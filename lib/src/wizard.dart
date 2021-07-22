@@ -11,7 +11,8 @@ import 'wizard_scope.dart';
 
 class WizardNode = FocusNode with WizardNodeMixin;
 
-typedef WizardBuilder = Widget Function(WizardScopeState state);
+typedef WizardBuilder = Widget Function(
+    WizardScopeState state, BuildContext context);
 
 extension WizardNodeX on WizardNode {
   WizardState? get state => context?.findAncestorStateOfType<WizardState>();
@@ -129,8 +130,8 @@ class WizardState extends State<Wizard> {
                   child: builtWizardOverlay?.child ?? overlay.child!,
                 );
               }).toList(),
-              child: widget.activeBuilder?.call(_wizardScopeState) ??
-                  widget.builder(_wizardScopeState),
+              child: widget.activeBuilder?.call(_wizardScopeState, context) ??
+                  widget.builder(_wizardScopeState, context),
               background: widget.background ??
                   _wizardScopeState.background ??
                   Container(
@@ -149,7 +150,7 @@ class WizardState extends State<Wizard> {
       opacity: active ? 0 : 1,
       child: Focus(
         focusNode: _wizardNode,
-        child: widget.builder(_wizardScopeState),
+        child: widget.builder(_wizardScopeState, context),
       ),
     );
   }

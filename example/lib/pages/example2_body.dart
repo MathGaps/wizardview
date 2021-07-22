@@ -59,14 +59,14 @@ class _Example2BodyState extends State<Example2Body> {
                       ),
                     ],
                     // background: background,
-                    builder: (_) => SizedBox(
+                    builder: (_, __) => SizedBox(
                       width: 300,
                       child: TextField(
                         controller: _fnController,
                         decoration: InputDecoration(hintText: 'First Name'),
                       ),
                     ),
-                    activeBuilder: (state) => SizedBox(
+                    activeBuilder: (state, __) => SizedBox(
                       width: 300,
                       child: TextField(
                         controller: _fnController,
@@ -97,14 +97,14 @@ class _Example2BodyState extends State<Example2Body> {
                       ),
                     ],
                     background: background,
-                    builder: (_) => SizedBox(
+                    builder: (_, __) => SizedBox(
                       width: 300,
                       child: TextField(
                         controller: _mnController,
                         decoration: InputDecoration(hintText: 'Middle Name'),
                       ),
                     ),
-                    activeBuilder: (state) => SizedBox(
+                    activeBuilder: (state, __) => SizedBox(
                       width: 300,
                       child: TextField(
                         controller: _mnController,
@@ -167,14 +167,14 @@ class _Example2BodyState extends State<Example2Body> {
                       ),
                     ],
                     background: background,
-                    builder: (_) => SizedBox(
+                    builder: (_, __) => SizedBox(
                       width: 300,
                       child: TextField(
                         controller: _lnController,
                         decoration: InputDecoration(hintText: 'Last Name'),
                       ),
                     ),
-                    activeBuilder: (state) => SizedBox(
+                    activeBuilder: (state, __) => SizedBox(
                       width: 300,
                       child: TextField(
                         controller: _lnController,
@@ -209,7 +209,7 @@ class _Example2BodyState extends State<Example2Body> {
                       ),
                     ],
                     background: background,
-                    builder: (_) => ElevatedButton(
+                    builder: (_, __) => ElevatedButton(
                       onPressed: () {
                         WizardScope.of(context).next();
                       },

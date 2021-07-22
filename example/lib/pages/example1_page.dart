@@ -142,7 +142,7 @@ class _Example1PageState extends State<Example1Page>
                       child: FocusTraversalOrder(
                         order: LexicalFocusOrder(c),
                         child: Wizard(
-                          builder: (_) => GestureDetector(
+                          builder: (_, __) => GestureDetector(
                             onTap: () => WizardScope.of(context).next(),
                             child: Text(
                               c,
