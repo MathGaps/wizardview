@@ -5,10 +5,13 @@ import 'package:wizardview/src/mixins/wizard_node_mixin.dart';
 import 'package:wizardview/src/wizard_overlay.dart';
 import 'package:wizardview/src/wizard_parent_data_widget.dart';
 import 'package:wizardview/src/wizard_render_object.dart';
+import 'package:wizardview/wizardview.dart';
 
 import 'wizard_scope.dart';
 
 class WizardNode = FocusNode with WizardNodeMixin;
+
+typedef WizardBuilder = Widget Function(WizardScopeState state);
 
 extension WizardNodeX on WizardNode {
   WizardState? get state => context?.findAncestorStateOfType<WizardState>();
@@ -20,9 +23,9 @@ extension WizardNodeX on WizardNode {
 /// descendant of a [WizardScope].
 class Wizard extends StatefulWidget {
   const Wizard({
-    required this.child,
+    required this.builder,
     required List<WizardOverlay>? overlays,
-    this.activeChild,
+    this.activeBuilder,
     this.background,
     this.onNodeStart,
     this.onNodeEnd,
@@ -35,12 +38,12 @@ class Wizard extends StatefulWidget {
         overlays = overlays ?? const [],
         super(key: key);
 
-  /// The widget to be focused
-  final Widget child;
+  /// The builder for the widget to be focused. Provides you with
+  final WizardBuilder builder;
 
   /// An optional [Widget] to be shown instead of `child` when this [Wizard] is
   /// in focus
-  final Widget? activeChild;
+  final WizardBuilder? activeBuilder;
 
   /// Flag for if this [Wizard] should render the focused child
   final bool renderChild;
@@ -74,6 +77,9 @@ class WizardState extends State<Wizard> {
     setState(() => _active = active);
   }
 
+  WizardScopeState get _wizardScopeState =>
+      context.findAncestorStateOfType<WizardScopeState>()!;
+
   @override
   void initState() {
     super.initState();
@@ -97,10 +103,6 @@ class WizardState extends State<Wizard> {
   }
 
   OverlayEntry overlayEntry({Widget? background}) {
-    // get Cotnext here
-
-    // document why we need to provide the state (because the context wont necesarrily contain the WizardScope (overlay))
-
     return OverlayEntry(
       builder: (BuildContext overlayContext) {
         return Positioned(
@@ -114,6 +116,7 @@ class WizardState extends State<Wizard> {
               // [WizardRenderObjectWidget]
               overlays: widget.overlays.map((overlay) {
                 final builtWizardOverlay = overlay.builder?.call(
+                  _wizardScopeState,
                   _wizardNode.offset,
                   _wizardNode.size,
                 );
@@ -126,11 +129,10 @@ class WizardState extends State<Wizard> {
                   child: builtWizardOverlay?.child ?? overlay.child!,
                 );
               }).toList(),
-              child: widget.activeChild ?? widget.child,
+              child: widget.activeBuilder?.call(_wizardScopeState) ??
+                  widget.builder(_wizardScopeState),
               background: widget.background ??
-                  context
-                      .findAncestorStateOfType<WizardScopeState>()
-                      ?.background ??
+                  _wizardScopeState.background ??
                   Container(
                     child: Text('[WizardScopeState] not found'),
                   ),
@@ -147,7 +149,7 @@ class WizardState extends State<Wizard> {
       opacity: active ? 0 : 1,
       child: Focus(
         focusNode: _wizardNode,
-        child: widget.child,
+        child: widget.builder(_wizardScopeState),
       ),
     );
   }

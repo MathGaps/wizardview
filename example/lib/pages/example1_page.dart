@@ -142,7 +142,7 @@ class _Example1PageState extends State<Example1Page>
                       child: FocusTraversalOrder(
                         order: LexicalFocusOrder(c),
                         child: Wizard(
-                          child: GestureDetector(
+                          builder: (_) => GestureDetector(
                             onTap: () => WizardScope.of(context).next(),
                             child: Text(
                               c,
@@ -155,7 +155,7 @@ class _Example1PageState extends State<Example1Page>
                           background: background,
                           overlays: [
                             WizardOverlay.builder(
-                              builder: (Offset offset, Size size) {
+                              builder: (_, Offset offset, Size size) {
                                 return BuiltWizardOverlay(
                                   child: Transform.scale(
                                     scale: _animations[c]!.value,

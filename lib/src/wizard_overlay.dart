@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:wizardview/wizardview.dart';
 
-typedef OverlayBuilder = BuiltWizardOverlay Function(Offset offset, Size size);
+typedef WizardOverlayBuilder = BuiltWizardOverlay Function(
+    WizardScopeState state, Offset offset, Size size);
 
 class WizardOverlay {
   const WizardOverlay({
@@ -11,13 +13,18 @@ class WizardOverlay {
         child = child;
 
   const WizardOverlay.builder({
-    required OverlayBuilder builder,
+    required WizardOverlayBuilder builder,
   })  : alignment = null,
-        builder = builder,
-        child = null;
+        child = null,
+        builder = builder;
+  // const WizardOverlay({
+  //   Alignment? alignment,
+  //   required WizardOverlayBuilder builder,
+  // })  : alignment = null,
+  //       builder = builder;
 
   /// A builder function which provides the `offset` and `size` of the focused child
-  final OverlayBuilder? builder;
+  final WizardOverlayBuilder? builder;
   final Widget? child;
   final Alignment? alignment;
 }

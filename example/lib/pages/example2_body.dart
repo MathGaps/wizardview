@@ -59,18 +59,14 @@ class _Example2BodyState extends State<Example2Body> {
                       ),
                     ],
                     // background: background,
-                    child: SizedBox(
+                    builder: (_) => SizedBox(
                       width: 300,
                       child: TextField(
                         controller: _fnController,
                         decoration: InputDecoration(hintText: 'First Name'),
-                        onSubmitted: (_) {
-                          // key.currentState?.next();
-                          WizardScope.of(context).next();
-                        },
                       ),
                     ),
-                    activeChild: SizedBox(
+                    activeBuilder: (state) => SizedBox(
                       width: 300,
                       child: TextField(
                         controller: _fnController,
@@ -79,9 +75,8 @@ class _Example2BodyState extends State<Example2Body> {
                           filled: true,
                           fillColor: Theme.of(context).canvasColor,
                         ),
-                        onSubmitted: (_) {
-                          // key.currentState?.next();
-                          WizardScope.of(context).next();
+                        onSubmitted: (__) {
+                          state.next();
                         },
                       ),
                     ),
@@ -102,18 +97,14 @@ class _Example2BodyState extends State<Example2Body> {
                       ),
                     ],
                     background: background,
-                    child: SizedBox(
+                    builder: (_) => SizedBox(
                       width: 300,
                       child: TextField(
                         controller: _mnController,
                         decoration: InputDecoration(hintText: 'Middle Name'),
-                        onSubmitted: (_) {
-                          // key.currentState?.next();
-                          WizardScope.of(context).next();
-                        },
                       ),
                     ),
-                    activeChild: SizedBox(
+                    activeBuilder: (state) => SizedBox(
                       width: 300,
                       child: TextField(
                         controller: _mnController,
@@ -123,23 +114,26 @@ class _Example2BodyState extends State<Example2Body> {
                           fillColor: Theme.of(context).canvasColor,
                         ),
                         onSubmitted: (_) {
-                          // key.currentState?.next();
-                          WizardScope.of(context).next();
+                          state.next();
                         },
                       ),
                     ),
                   ),
                   Wizard(
                     overlays: [
-                      WizardOverlay(
-                        alignment: Alignment(-.3, -1),
-                        child: Text(
-                          'This can be anything',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontStyle: FontStyle.italic,
-                              fontSize: 24),
-                        ),
+                      WizardOverlay.builder(
+                        builder: (WizardScopeState state, Offset offset,
+                                Size size) =>
+                            BuiltWizardOverlay(
+                                child: Text(
+                                  'This can be anything',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontStyle: FontStyle.italic,
+                                      fontSize: 24),
+                                ),
+                                offset: offset,
+                                size: size),
                       ),
                       WizardOverlay(
                         alignment: Alignment(.6, -1),
@@ -173,18 +167,14 @@ class _Example2BodyState extends State<Example2Body> {
                       ),
                     ],
                     background: background,
-                    child: SizedBox(
+                    builder: (_) => SizedBox(
                       width: 300,
                       child: TextField(
                         controller: _lnController,
                         decoration: InputDecoration(hintText: 'Last Name'),
-                        onSubmitted: (_) {
-                          // key.currentState?.next();
-                          WizardScope.of(context).next();
-                        },
                       ),
                     ),
-                    activeChild: SizedBox(
+                    activeBuilder: (state) => SizedBox(
                       width: 300,
                       child: TextField(
                         controller: _lnController,
@@ -193,9 +183,8 @@ class _Example2BodyState extends State<Example2Body> {
                           filled: true,
                           fillColor: Theme.of(context).canvasColor,
                         ),
-                        onSubmitted: (_) {
-                          // key.currentState?.next();
-                          WizardScope.of(context).next();
+                        onSubmitted: (__) {
+                          state.next();
                         },
                       ),
                     ),
@@ -220,7 +209,7 @@ class _Example2BodyState extends State<Example2Body> {
                       ),
                     ],
                     background: background,
-                    child: ElevatedButton(
+                    builder: (_) => ElevatedButton(
                       onPressed: () {
                         WizardScope.of(context).next();
                       },
