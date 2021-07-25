@@ -6,21 +6,12 @@ typedef WizardOverlayBuilder = BuiltWizardOverlay Function(
 
 class WizardOverlay {
   const WizardOverlay({
-    required Widget child,
-    Alignment alignment = Alignment.bottomCenter,
-  })  : alignment = alignment,
-        builder = null,
-        child = child;
-
-  const WizardOverlay.builder({
-    required WizardOverlayBuilder builder,
-  })  : alignment = null,
-        child = null,
-        builder = builder;
+    required this.builder,
+    this.alignment = Alignment.bottomCenter,
+  });
 
   /// A builder function which provides the `offset` and `size` of the focused child
-  final WizardOverlayBuilder? builder;
-  final Widget? child;
+  final WizardOverlayBuilder builder;
   final Alignment? alignment;
 }
 

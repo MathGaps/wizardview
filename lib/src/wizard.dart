@@ -116,8 +116,8 @@ class WizardState extends State<Wizard> {
               // `overlays` have to pass their alignments inside the
               // [WizardRenderObjectWidget]
               overlays: widget.overlays.map((overlay) {
-                final BuiltWizardOverlay? builtWizardOverlay =
-                    overlay.builder?.call(
+                final BuiltWizardOverlay builtWizardOverlay =
+                    overlay.builder.call(
                   _wizardScopeState,
                   _wizardNode.offset,
                   _wizardNode.size,
@@ -126,9 +126,9 @@ class WizardState extends State<Wizard> {
                 return WizardParentDataWidget(
                   id: WizardObjectId.overlay,
                   alignment: overlay.alignment,
-                  overlayOffset: builtWizardOverlay?.offset,
-                  overlaySize: builtWizardOverlay?.size,
-                  child: builtWizardOverlay?.child ?? overlay.child!,
+                  overlayOffset: builtWizardOverlay.offset,
+                  overlaySize: builtWizardOverlay.size,
+                  child: builtWizardOverlay.child,
                   offset: _wizardNode.offset,
                 );
               }).toList(),
