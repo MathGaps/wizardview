@@ -150,21 +150,19 @@ class _RenderWizardRenderObject extends RenderBox
       }
 
       if (childParentData.id == WizardObjectId.overlay) {
-        if (childParentData.offset == _childOffset) {
-          Offset centeringOffset = Offset(
-              -childParentData.size!.width / 2 + childSize.width / 2,
-              -childParentData.size!.height / 2 + childSize.height / 2);
-          final alignmentFactor = Size(
-              childParentData.size!.width / 2 + childSize.width / 2,
-              childParentData.size!.height / 2 + childSize.height / 2);
+        Offset centeringOffset = Offset(
+            -childParentData.size!.width / 2 + childSize.width / 2,
+            -childParentData.size!.height / 2 + childSize.height / 2);
+        final alignmentFactor = Size(
+            childParentData.size!.width / 2 + childSize.width / 2,
+            childParentData.size!.height / 2 + childSize.height / 2);
 
-          childParentData.offset = _childOffset +
-              centeringOffset +
-              Offset(
-                childParentData.alignment!.x * alignmentFactor.width,
-                childParentData.alignment!.y * alignmentFactor.height,
-              );
-        }
+        childParentData.offset = _childOffset +
+            centeringOffset +
+            Offset(
+              childParentData.alignment!.x * alignmentFactor.width,
+              childParentData.alignment!.y * alignmentFactor.height,
+            );
       }
 
       child = childParentData.nextSibling;
