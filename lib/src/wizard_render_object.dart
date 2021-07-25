@@ -1,8 +1,7 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:wizardview/src/wizard_parent_data_widget.dart';
+
+import 'wizard_parent_data_widget.dart';
 
 class WizardRenderObjectWidget extends MultiChildRenderObjectWidget {
   WizardRenderObjectWidget({
@@ -151,18 +150,20 @@ class _RenderWizardRenderObject extends RenderBox
       }
 
       if (childParentData.id == WizardObjectId.overlay) {
-        Offset centeringOffset = Offset(
-            -childParentData.size!.width / 2 + childSize.width / 2,
-            -childParentData.size!.height / 2 + childSize.height / 2);
-        final alignmentFactor = Size(
-            childParentData.size!.width / 2 + childSize.width / 2,
-            childParentData.size!.height / 2 + childSize.height / 2);
+        if (childParentData.offset == _childOffset) {
+          Offset centeringOffset = Offset(
+              -childParentData.size!.width / 2 + childSize.width / 2,
+              -childParentData.size!.height / 2 + childSize.height / 2);
+          final alignmentFactor = Size(
+              childParentData.size!.width / 2 + childSize.width / 2,
+              childParentData.size!.height / 2 + childSize.height / 2);
 
-        childParentData.offset += centeringOffset +
-            Offset(
-              childParentData.alignment!.x * alignmentFactor.width,
-              childParentData.alignment!.y * alignmentFactor.height,
-            );
+          childParentData.offset += centeringOffset +
+              Offset(
+                childParentData.alignment!.x * alignmentFactor.width,
+                childParentData.alignment!.y * alignmentFactor.height,
+              );
+        }
       }
 
       child = childParentData.nextSibling;
