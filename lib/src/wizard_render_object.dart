@@ -158,7 +158,8 @@ class _RenderWizardRenderObject extends RenderBox
               childParentData.size!.width / 2 + childSize.width / 2,
               childParentData.size!.height / 2 + childSize.height / 2);
 
-          childParentData.offset += centeringOffset +
+          childParentData.offset = _childOffset +
+              centeringOffset +
               Offset(
                 childParentData.alignment!.x * alignmentFactor.width,
                 childParentData.alignment!.y * alignmentFactor.height,
