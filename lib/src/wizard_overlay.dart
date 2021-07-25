@@ -17,11 +17,6 @@ class WizardOverlay {
   })  : alignment = null,
         child = null,
         builder = builder;
-  // const WizardOverlay({
-  //   Alignment? alignment,
-  //   required WizardOverlayBuilder builder,
-  // })  : alignment = null,
-  //       builder = builder;
 
   /// A builder function which provides the `offset` and `size` of the focused child
   final WizardOverlayBuilder? builder;

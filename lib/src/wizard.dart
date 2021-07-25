@@ -107,8 +107,8 @@ class WizardState extends State<Wizard> {
     return OverlayEntry(
       builder: (BuildContext overlayContext) {
         return Positioned(
-          top: _wizardNode.offset.dy,
-          left: _wizardNode.offset.dx,
+          top: 0,
+          left: 0,
           child: Material(
             color: Colors.transparent,
             child: WizardRenderObjectWidget(
@@ -116,7 +116,8 @@ class WizardState extends State<Wizard> {
               // `overlays` have to pass their alignments inside the
               // [WizardRenderObjectWidget]
               overlays: widget.overlays.map((overlay) {
-                final builtWizardOverlay = overlay.builder?.call(
+                final BuiltWizardOverlay? builtWizardOverlay =
+                    overlay.builder?.call(
                   _wizardScopeState,
                   _wizardNode.offset,
                   _wizardNode.size,
@@ -128,10 +129,12 @@ class WizardState extends State<Wizard> {
                   overlayOffset: builtWizardOverlay?.offset,
                   overlaySize: builtWizardOverlay?.size,
                   child: builtWizardOverlay?.child ?? overlay.child!,
+                  offset: _wizardNode.offset,
                 );
               }).toList(),
               child: widget.activeBuilder?.call(_wizardScopeState, context) ??
                   widget.builder(_wizardScopeState, context),
+              childOffset: _wizardNode.offset,
               background: widget.background ??
                   _wizardScopeState.background ??
                   Container(

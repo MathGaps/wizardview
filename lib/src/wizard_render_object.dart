@@ -10,22 +10,33 @@ class WizardRenderObjectWidget extends MultiChildRenderObjectWidget {
     required Widget background,
     required List<Widget> overlays,
     required this.active,
+    required Offset childOffset,
     Key? key,
-  }) : super(
+  })  : _childOffset = childOffset,
+        super(
           key: key,
           children: [
             WizardParentDataWidget(
                 id: WizardObjectId.background, child: background),
-            WizardParentDataWidget(id: WizardObjectId.child, child: child),
+            WizardParentDataWidget(
+              id: WizardObjectId.child,
+              child: child,
+              offset: childOffset,
+            ),
             ...overlays
           ],
         );
 
   final bool active;
+  final Offset _childOffset;
 
   @override
   _RenderWizardRenderObject createRenderObject(BuildContext context) {
-    return _RenderWizardRenderObject(active: active);
+    return _RenderWizardRenderObject(
+      active: active,
+      childOffset: _childOffset,
+      context: context,
+    );
   }
 
   @override
@@ -33,7 +44,9 @@ class WizardRenderObjectWidget extends MultiChildRenderObjectWidget {
     BuildContext context,
     _RenderWizardRenderObject renderObject,
   ) {
-    renderObject..active = active;
+    renderObject
+      ..active = active
+      ..childOffset = _childOffset;
   }
 }
 
@@ -55,13 +68,28 @@ class _RenderWizardRenderObject extends RenderBox
     with
         ContainerRenderObjectMixin<RenderBox, WizardParentData>,
         RenderBoxContainerDefaultsMixin<RenderBox, WizardParentData> {
-  _RenderWizardRenderObject({required bool active}) : _active = active;
+  _RenderWizardRenderObject({
+    required bool active,
+    required BuildContext context,
+    required Offset childOffset,
+  })  : _active = active,
+        _childOffset = childOffset,
+        _screenSize = MediaQuery.of(context).size;
 
   bool _active;
   bool get active => _active;
   set active(bool active) {
     if (_active == active) return;
     _active = active;
+  }
+
+  Size _screenSize;
+
+  Offset _childOffset;
+  Offset get childOffset => _childOffset;
+  set childOffset(Offset childOffset) {
+    if (_childOffset == childOffset) return;
+    _childOffset = childOffset;
   }
 
   /// ParentData
@@ -80,34 +108,20 @@ class _RenderWizardRenderObject extends RenderBox
 
       switch (childParentData.id) {
         case WizardObjectId.child:
-          child.paint(context, offset);
+          child.paint(context, childParentData.offset);
           break;
         case WizardObjectId.background:
           if (active) child.paint(context, Offset.zero);
           break;
         case WizardObjectId.overlay:
           if (active) {
-            late Offset centeringOffset;
-
             if (childParentData.alignment == null) {
               child.paint(
                   context, childParentData.overlayOffset ?? Offset.zero);
             } else {
-              final alignmentFactor = Size(
-                  childParentData.size!.width / 2 + size.width / 2,
-                  childParentData.size!.height / 2 + size.height / 2);
-              centeringOffset = Offset(
-                  -childParentData.size!.width / 2 + size.width / 2,
-                  -childParentData.size!.height / 2 + size.height / 2);
-
               child.paint(
                 context,
-                offset +
-                    centeringOffset +
-                    Offset(
-                      childParentData.alignment!.x * alignmentFactor.width,
-                      childParentData.alignment!.y * alignmentFactor.height,
-                    ),
+                childParentData.offset,
               );
             }
           }
@@ -127,13 +141,28 @@ class _RenderWizardRenderObject extends RenderBox
       constraints: constraints,
       dry: false,
     );
+    late Size childSize;
     RenderBox? child = firstChild;
     while (child != null) {
       final childParentData = child.parentData! as WizardParentData;
 
+      if (childParentData.id == WizardObjectId.child) {
+        childSize = childParentData.size!;
+      }
+
       if (childParentData.id == WizardObjectId.overlay) {
-        childParentData.offset -= Offset(
-            childParentData.size!.width / 2, childParentData.size!.height / 2);
+        Offset centeringOffset = Offset(
+            -childParentData.size!.width / 2 + childSize.width / 2,
+            -childParentData.size!.height / 2 + childSize.height / 2);
+        final alignmentFactor = Size(
+            childParentData.size!.width / 2 + childSize.width / 2,
+            childParentData.size!.height / 2 + childSize.height / 2);
+
+        childParentData.offset += centeringOffset +
+            Offset(
+              childParentData.alignment!.x * alignmentFactor.width,
+              childParentData.alignment!.y * alignmentFactor.height,
+            );
       }
 
       child = childParentData.nextSibling;
@@ -144,7 +173,7 @@ class _RenderWizardRenderObject extends RenderBox
     required BoxConstraints constraints,
     required bool dry,
   }) {
-    double height = 0, width = 0;
+    // double height = 0, width = 0;
     RenderBox? child = firstChild;
 
     while (child != null) {
@@ -163,20 +192,25 @@ class _RenderWizardRenderObject extends RenderBox
 
       /// ! Need to think about this. If we change the size beyond the size of the child,
       /// it'll cause inconsistencies with how the child is rendered
-      if (childParentData.id == WizardObjectId.child) {
-        width = max(child.size.width, width);
-        height = max(child.size.height, height);
-      }
+      // if (childParentData.id == WizardObjectId.child) {
+      //   width = max(child.size.width, width);
+      //   height = max(child.size.height, height);
+      // }
+
+      // ! Size is now set to the screen size for easier [hitTest]ing purposes
+      // if (childParentData.id != WizardObjectId.background) {
+      //   width = max(child.size.width, width);
+      //   height = max(child.size.height, height);
+      // }
 
       childParentData.size = child.size;
       child = childParentData.nextSibling;
     }
 
-    return Size(width, height);
+    return _screenSize;
   }
 
   @override
-  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
-    return defaultHitTestChildren(result, position: position);
-  }
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) =>
+      defaultHitTestChildren(result, position: position);
 }
