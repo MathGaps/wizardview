@@ -110,9 +110,6 @@ class WizardState extends State<Wizard> {
   OverlayEntry overlayEntry({Widget? background}) {
     return OverlayEntry(
       builder: (BuildContext overlayContext) {
-        final child = widget.activeBuilder?.call(_wizardScopeState, context) ??
-            widget.builder(_wizardScopeState, context);
-
         return Positioned(
           top: 0,
           left: 0,
@@ -140,7 +137,8 @@ class WizardState extends State<Wizard> {
                   // constraints: widget.tightChildSize ? context.size : null,
                 );
               }).toList(),
-              child: child,
+              child: widget.activeBuilder?.call(_wizardScopeState, context) ??
+                  widget.builder(_wizardScopeState, context),
               childOffset: _wizardNode.offset,
               background: widget.background ??
                   _wizardScopeState.background ??

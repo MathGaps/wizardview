@@ -175,7 +175,6 @@ class WizardScopeState extends State<WizardScope> {
 
   /// Ends the current [WizardScope] traversal
   void end() async {
-    debugPrint('[WizardScopeNode] end()');
     _history.clear();
     _actionsOverlay?.remove();
     _focussedNode?.unfocus();
