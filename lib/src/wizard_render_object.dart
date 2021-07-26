@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:wizardview/src/wizard_overlay.dart';
 
 import 'wizard_parent_data_widget.dart';
 
