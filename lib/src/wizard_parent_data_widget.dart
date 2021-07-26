@@ -10,6 +10,7 @@ class WizardParentDataWidget extends ParentDataWidget<WizardParentData> {
     this.offset,
     this.overlayOffset,
     this.overlaySize,
+    this.constraints,
     Key? key,
   })  : assert((overlayOffset == null &&
                 overlaySize == null &&
@@ -31,6 +32,7 @@ class WizardParentDataWidget extends ParentDataWidget<WizardParentData> {
   final Offset? offset;
   final Offset? overlayOffset;
   final Size? overlaySize;
+  final Size? constraints;
 
   @override
   void applyParentData(RenderObject renderObject) {
@@ -51,8 +53,13 @@ class WizardParentDataWidget extends ParentDataWidget<WizardParentData> {
     if (parentData.overlayOffset != overlayOffset) {
       parentData.overlayOffset = overlayOffset;
     }
+
     if (parentData.overlaySize != overlaySize) {
       parentData.overlaySize = overlaySize;
+    }
+
+    if (parentData.constraints != constraints) {
+      parentData.constraints = constraints;
     }
 
     final targetObject = renderObject.parent;

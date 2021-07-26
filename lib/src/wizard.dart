@@ -31,6 +31,7 @@ class Wizard extends StatefulWidget {
     this.onNodeStart,
     this.onNodeEnd,
     this.renderChild = true,
+    this.tightChildSize = false,
     Key? key,
   })  :
 
@@ -64,6 +65,9 @@ class Wizard extends StatefulWidget {
   /// Callback executed before moving focus to the next node
   final WizardCallback? onNodeEnd;
 
+  /// Set to `true` if focused child is unbounded
+  final bool tightChildSize;
+
   @override
   WizardState createState() => WizardState();
 }
@@ -94,13 +98,13 @@ class WizardState extends State<Wizard> {
   }
 
   Future<void> onNodeStart() async {
-    active = true;
+    ;
     await widget.onNodeStart?.call();
   }
 
   Future<void> onNodeEnd() async {
     await widget.onNodeEnd?.call();
-    active = false;
+    setState(() => active = false);
   }
 
   OverlayEntry overlayEntry({Widget? background}) {
@@ -130,6 +134,7 @@ class WizardState extends State<Wizard> {
                   overlaySize: builtWizardOverlay?.size,
                   child: builtWizardOverlay?.child ?? overlay.child!,
                   offset: _wizardNode.offset,
+                  constraints: widget.tightChildSize ? context.size : null,
                 );
               }).toList(),
               child: widget.activeBuilder?.call(_wizardScopeState, context) ??
