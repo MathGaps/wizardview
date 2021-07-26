@@ -69,6 +69,8 @@ class WizardScopeState extends State<WizardScope> {
     debugLabel: 'WizardScope',
   );
 
+  bool _paused = false;
+
   /// The [WizardNode] currently in focus
   WizardNode? _focussedNode;
 
@@ -101,6 +103,8 @@ class WizardScopeState extends State<WizardScope> {
   /// Start the [WizardScope] traversal, or move on to the next object to focus if
   /// a traversal is ongoing
   Future<void> next({bool pause = false}) async {
+    if (_paused) return;
+
     if (!_started.value) {
       _started.value = true;
       _inflateActionsOverlay();
@@ -144,6 +148,16 @@ class WizardScopeState extends State<WizardScope> {
         ),
         below: _actionsOverlay);
     await _focussedNode!.state!.onNodeStart();
+  }
+
+  void pause() async {
+    _currentOverlayEntry?.remove();
+    _paused = true;
+  }
+
+  void unpause() async {
+    Overlay.of(context)?.insert(_currentOverlayEntry!, below: _actionsOverlay);
+    _paused = false;
   }
 
   /// Re-focus on the previously focused node
