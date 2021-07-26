@@ -100,7 +100,7 @@ class WizardScopeState extends State<WizardScope> {
 
   /// Start the [WizardScope] traversal, or move on to the next object to focus if
   /// a traversal is ongoing
-  Future<void> next() async {
+  Future<void> next({bool pause = false}) async {
     if (!_started.value) {
       _started.value = true;
       _inflateActionsOverlay();
@@ -110,6 +110,8 @@ class WizardScopeState extends State<WizardScope> {
       if (_currentOverlayEntry?.mounted ?? false)
         _currentOverlayEntry?.remove();
       _focussedNode?.state?..active = false;
+
+      if (pause) return;
     }
 
     /// Handles edge where there are no [WizardNode]'s in the ancestors
