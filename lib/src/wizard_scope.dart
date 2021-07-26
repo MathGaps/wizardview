@@ -107,8 +107,8 @@ class WizardScopeState extends State<WizardScope> {
 
     if (!_started.value) {
       _started.value = true;
-      _inflateActionsOverlay();
       await widget.onStart?.call(this);
+      _inflateActionsOverlay();
     } else {
       await _focussedNode?.state?.onNodeEnd();
       if (_currentOverlayEntry?.mounted ?? false)
