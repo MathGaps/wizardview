@@ -30,6 +30,7 @@ class Wizard extends StatefulWidget {
     this.background,
     this.onNodeStart,
     this.onNodeEnd,
+    this.onPrev,
     this.renderChild = true,
     this.tightChildSize = false,
     Key? key,
@@ -65,6 +66,9 @@ class Wizard extends StatefulWidget {
   /// Callback executed before moving focus to the next node
   final WizardCallback? onNodeEnd;
 
+  /// Callback executed if `prev()` was called on the parent [WizardScope]
+  final WizardCallback? onPrev;
+
   /// Set to `true` if focused child is unbounded
   final bool tightChildSize;
 
@@ -74,6 +78,8 @@ class Wizard extends StatefulWidget {
 
 class WizardState extends State<Wizard> {
   late final WizardNode _wizardNode;
+  late final WizardCallback? _onPrev;
+  WizardCallback? get onPrev => _onPrev;
 
   bool _active = false;
   bool get active => _active;
@@ -89,6 +95,7 @@ class WizardState extends State<Wizard> {
   void initState() {
     super.initState();
     _wizardNode = WizardNode(debugLabel: 'WizardNode');
+    _onPrev = widget.onPrev;
   }
 
   @override

@@ -168,7 +168,13 @@ class WizardScopeState extends State<WizardScope> {
     }
 
     final removedNode = _history.removeLast();
-    await removedNode.state?.onNodeEnd();
+
+    if (removedNode.state?.onPrev != null) {
+      await removedNode.state?.onPrev?.call();
+    } else {
+      await removedNode.state?.onNodeEnd();
+    }
+
     removedNode.state?..active = false;
     _currentOverlayEntry?.remove();
 
