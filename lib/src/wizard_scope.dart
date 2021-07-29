@@ -183,9 +183,11 @@ class WizardScopeState extends State<WizardScope> {
       ..state?.active = true;
     Overlay.of(
       context,
-    )?.insert(_currentOverlayEntry = _focussedNode!.state!.overlayEntry(
-      background: widget.background,
-    ));
+    )?.insert(
+        _currentOverlayEntry = _focussedNode!.state!.overlayEntry(
+          background: widget.background,
+        ),
+        below: _actionsOverlay);
     await _history.last.state?.onNodeStart();
   }
 
