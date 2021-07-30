@@ -138,7 +138,9 @@ class WizardScopeState extends State<WizardScope> {
     FocusNode? focussedNode;
     do {
       final bool nextFocus = !_node.nextFocus();
-      debugPrint('nextFocus: $nextFocus');
+      debugPrint('!nextFocus: $nextFocus');
+
+      debugPrint(_node.descendants.toList().toString());
 
       if (nextFocus || history.contains(focussedNode = _node.focusedChild)) {
         debugPrint('_history: $_history');
