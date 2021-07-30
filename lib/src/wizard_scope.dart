@@ -111,8 +111,10 @@ class WizardScopeState extends State<WizardScope> {
       _inflateActionsOverlay();
     } else {
       await _focussedNode?.state?.onNodeEnd();
-      if (_currentOverlayEntry?.mounted ?? false)
+      if (_currentOverlayEntry?.mounted ?? false) {
         _currentOverlayEntry?.remove();
+        _currentOverlayEntry = null;
+      }
       _focussedNode?.state?..active = false;
 
       if (pause) return;
@@ -168,12 +170,7 @@ class WizardScopeState extends State<WizardScope> {
     }
 
     final removedNode = _history.removeLast();
-
-    if (removedNode.state?.onPrev != null) {
-      await removedNode.state?.onPrev?.call();
-    } else {
-      await removedNode.state?.onNodeEnd();
-    }
+    await removedNode.state?.onNodeEnd();
 
     removedNode.state?..active = false;
     _currentOverlayEntry?.remove();
@@ -201,11 +198,13 @@ class WizardScopeState extends State<WizardScope> {
   void end() async {
     _history.clear();
     _actionsOverlay?.remove();
+    _actionsOverlay = null;
     _focussedNode?.unfocus();
     _node.requestFocus();
     await _focussedNode?.state?.onNodeEnd();
     _started.value = false;
-    _currentOverlayEntry?.remove();
+    if (!_paused) _currentOverlayEntry?.remove();
+    _currentOverlayEntry = null;
     widget.onEnd?.call(this);
   }
 
