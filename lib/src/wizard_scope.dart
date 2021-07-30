@@ -108,6 +108,7 @@ class WizardScopeState extends State<WizardScope> {
     if (!_started.value) {
       _started.value = true;
       await widget.onStart?.call(this);
+      _focussedNode?.unfocus();
       _inflateActionsOverlay();
     } else {
       await _focussedNode?.state?.onNodeEnd();
@@ -127,7 +128,7 @@ class WizardScopeState extends State<WizardScope> {
 
     // Ensures [WizardScopeNode] already has the focus before iterating
     // through its children, that way `_node.focusedChild` will not return `null`.
-    if (!_node.hasFocus) {
+    if (!_node.hasPrimaryFocus) {
       _node.requestFocus();
 
       // Waits for the next frame to ensure [_node] has received focus since
