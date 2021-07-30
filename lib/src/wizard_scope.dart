@@ -137,8 +137,10 @@ class WizardScopeState extends State<WizardScope> {
 
     FocusNode? focussedNode;
     do {
-      if (!_node.nextFocus() ||
-          history.contains(focussedNode = _node.focusedChild)) {
+      final bool nextFocus = !_node.nextFocus();
+      debugPrint('nextFocus: $nextFocus');
+
+      if (nextFocus || history.contains(focussedNode = _node.focusedChild)) {
         debugPrint('_history: $_history');
 
         _currentOverlayEntry = null;
@@ -205,11 +207,12 @@ class WizardScopeState extends State<WizardScope> {
     _actionsOverlay?.remove();
     _actionsOverlay = null;
     _focussedNode?.unfocus();
-    _node.requestFocus();
     await _focussedNode?.state?.onNodeEnd();
     _started.value = false;
     _currentOverlayEntry?.remove();
     _currentOverlayEntry = null;
+    _node.requestFocus();
+    await Future.delayed(Duration(seconds: 0));
     widget.onEnd?.call(this);
   }
 
