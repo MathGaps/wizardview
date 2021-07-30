@@ -123,11 +123,10 @@ class WizardScopeState extends State<WizardScope> {
 
     /// Handles edge where there are no [WizardNode]'s in the ancestors
     final List<FocusNode> history = [..._history];
-    debugPrint('history: $history');
-    debugPrint('_history: $_history');
 
     // Ensures [WizardScopeNode] already has the focus before iterating
     // through its children, that way `_node.focusedChild` will not return `null`.
+    print('!_node.hasPrimaryFocus: ${!_node.hasPrimaryFocus}');
     if (!_node.hasPrimaryFocus) {
       _node.requestFocus();
 
@@ -139,8 +138,6 @@ class WizardScopeState extends State<WizardScope> {
     FocusNode? focussedNode;
     do {
       final bool nextFocus = !_node.nextFocus();
-      debugPrint('!nextFocus: $nextFocus');
-
       debugPrint(_node.descendants.toList().toString());
 
       if (nextFocus || history.contains(focussedNode = _node.focusedChild)) {
@@ -214,8 +211,6 @@ class WizardScopeState extends State<WizardScope> {
     _started.value = false;
     _currentOverlayEntry?.remove();
     _currentOverlayEntry = null;
-    _node.requestFocus();
-    await Future.delayed(Duration(seconds: 0));
     widget.onEnd?.call(this);
   }
 
