@@ -88,6 +88,7 @@ class _Example1PageState extends State<Example1Page>
       ),
       onStart: (_) => showIntroductionDialog(),
       onEnd: (_) => debugPrint('[WizardView] has ended'),
+      background: background,
       child: Scaffold(
         appBar: AppBar(
           title: Text('WizardView Example1'),
@@ -142,6 +143,7 @@ class _Example1PageState extends State<Example1Page>
                       child: FocusTraversalOrder(
                         order: LexicalFocusOrder(c),
                         child: Wizard(
+                          debugLabel: c,
                           builder: (_, __) => GestureDetector(
                             onTap: () => WizardScope.of(context).next(),
                             child: Text(
@@ -152,7 +154,6 @@ class _Example1PageState extends State<Example1Page>
                                   .copyWith(color: colour),
                             ),
                           ),
-                          background: background,
                           overlays: [
                             // WizardOverlay.builder(
                             //   builder: (_, Offset offset, Size size) {

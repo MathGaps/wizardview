@@ -108,7 +108,19 @@ class WizardScopeState extends State<WizardScope> {
     if (!_started.value) {
       _started.value = true;
       await widget.onStart?.call(this);
-      _focussedNode?.unfocus();
+
+      if (!_node.hasPrimaryFocus) {
+        _node.requestFocus();
+
+        // Waits for the next frame to ensure [_node] has received focus since
+        // notification may lag for up to a frame
+        await Future.delayed(Duration(seconds: 0));
+
+        // Makes sure that the first `_node.nextFocus()` call will start restart
+        // any traversal that's happening
+        _node.focusedChild?.unfocus();
+      }
+
       _inflateActionsOverlay();
     } else {
       await _focussedNode?.state?.onNodeEnd();
@@ -126,26 +138,14 @@ class WizardScopeState extends State<WizardScope> {
 
     // Ensures [WizardScopeNode] already has the focus before iterating
     // through its children, that way `_node.focusedChild` will not return `null`.
-    print('!_node.hasPrimaryFocus: ${!_node.hasPrimaryFocus}');
-    _node.focusedChild?.unfocus();
-    _node.unfocus();
+    // print('!_node.hasPrimaryFocus: ${!_node.hasPrimaryFocus}');
 
-    if (!_node.hasPrimaryFocus) {
-      _node.nearestScope.requestFocus();
-
-      // Waits for the next frame to ensure [_node] has received focus since
-      // notification may lag for up to a frame
-      await Future.delayed(Duration(seconds: 0));
-    }
+    // _node.focusedChild?.unfocus();
 
     FocusNode? focussedNode;
     do {
-      final bool nextFocus = !_node.nextFocus();
-      debugPrint(_node.descendants.toList().toString());
-
-      if (nextFocus || history.contains(focussedNode = _node.focusedChild)) {
-        debugPrint('_history: $_history');
-
+      if (!_node.nextFocus() ||
+          history.contains(focussedNode = _node.focusedChild)) {
         _currentOverlayEntry = null;
         return end();
       }
@@ -207,14 +207,19 @@ class WizardScopeState extends State<WizardScope> {
   /// Ends the current [WizardScope] traversal
   void end() async {
     _history.clear();
+
     _actionsOverlay?.remove();
     _actionsOverlay = null;
+
     _focussedNode?.unfocus();
     await _focussedNode?.state?.onNodeEnd();
-    _started.value = false;
+    _focussedNode = null;
+
     _currentOverlayEntry?.remove();
     _currentOverlayEntry = null;
+
     widget.onEnd?.call(this);
+    _started.value = false;
   }
 
   /// Insert an [OverlayEntry] for the provided `actions` [Widget]

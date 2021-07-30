@@ -33,6 +33,7 @@ class Wizard extends StatefulWidget {
     this.onPrev,
     this.renderChild = true,
     this.tightChildSize = false,
+    this.debugLabel,
     Key? key,
   })  :
 
@@ -72,6 +73,8 @@ class Wizard extends StatefulWidget {
   /// Set to `true` if focused child is unbounded
   final bool tightChildSize;
 
+  final String? debugLabel;
+
   @override
   WizardState createState() => WizardState();
 }
@@ -94,7 +97,7 @@ class WizardState extends State<Wizard> {
   @override
   void initState() {
     super.initState();
-    _wizardNode = WizardNode(debugLabel: 'WizardNode');
+    _wizardNode = WizardNode(debugLabel: widget.debugLabel ?? 'WizardNode');
     _onPrev = widget.onPrev;
   }
 
