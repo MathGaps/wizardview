@@ -127,6 +127,7 @@ class WizardScopeState extends State<WizardScope> {
     // Ensures [WizardScopeNode] already has the focus before iterating
     // through its children, that way `_node.focusedChild` will not return `null`.
     print('!_node.hasPrimaryFocus: ${!_node.hasPrimaryFocus}');
+    _node.unfocus();
     if (!_node.hasPrimaryFocus) {
       _node.requestFocus();
 
