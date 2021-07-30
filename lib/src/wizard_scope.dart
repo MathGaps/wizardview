@@ -203,8 +203,11 @@ class WizardScopeState extends State<WizardScope> {
     _node.requestFocus();
     await _focussedNode?.state?.onNodeEnd();
     _started.value = false;
-    if (!_paused) _currentOverlayEntry?.remove();
-    _currentOverlayEntry = null;
+    if (_currentOverlayEntry != null) {
+      _currentOverlayEntry?.remove();
+      _currentOverlayEntry = null;
+    }
+
     widget.onEnd?.call(this);
   }
 
