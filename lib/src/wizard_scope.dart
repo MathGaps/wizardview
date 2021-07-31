@@ -259,6 +259,8 @@ class WizardScopeState extends State<WizardScope> {
 
   @override
   Widget build(BuildContext context) {
+    _focusAttachment.reparent();
+
     return _InheritedWizardScope(
       data: this,
       child: FocusScope(
