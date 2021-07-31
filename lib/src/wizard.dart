@@ -109,7 +109,7 @@ class WizardState extends State<Wizard> {
   void didUpdateWidget(Wizard oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (widget.context != null) _wizardNode.attach(context);
+    if (widget.context != null) _wizardNode.attach(context).reparent();
   }
 
   @override
