@@ -117,7 +117,8 @@ class WizardScopeState extends State<WizardScope> {
       await widget.onStart?.call(this);
 
       if (!_node.hasPrimaryFocus) {
-        _node.requestFocus();
+        FocusManager.instance.rootScope.requestFocus(_node);
+        // _node.requestFocus();
 
         // Waits for the next frame to ensure [_node] has received focus since
         // notification may lag for up to a frame
