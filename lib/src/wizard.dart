@@ -34,6 +34,7 @@ class Wizard extends StatefulWidget {
     this.renderChild = true,
     this.tightChildSize = false,
     this.debugLabel,
+    this.context,
     Key? key,
   })  :
 
@@ -41,6 +42,8 @@ class Wizard extends StatefulWidget {
         ///! construction.
         overlays = overlays ?? const [],
         super(key: key);
+
+  final BuildContext? context;
 
   /// The builder for the widget to be focused. Provides you with
   final WizardBuilder builder;
@@ -99,6 +102,7 @@ class WizardState extends State<Wizard> {
     super.initState();
     _wizardNode = WizardNode(debugLabel: widget.debugLabel ?? 'WizardNode');
     _onPrev = widget.onPrev;
+    if (widget.context != null) _wizardNode.attach(context);
   }
 
   @override
