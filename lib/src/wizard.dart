@@ -106,13 +106,6 @@ class WizardState extends State<Wizard> {
   }
 
   @override
-  void didUpdateWidget(Wizard oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    _wizardNode.attach(_wizardScopeState.context).reparent();
-  }
-
-  @override
   void dispose() {
     _wizardNode.dispose();
     super.dispose();
