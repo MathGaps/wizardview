@@ -87,6 +87,8 @@ class WizardState extends State<Wizard> {
   late final WizardCallback? _onPrev;
   WizardCallback? get onPrev => _onPrev;
 
+  late FocusAttachment _focusAttachment;
+
   bool _active = false;
   bool get active => _active;
   set active(bool active) {
@@ -102,7 +104,14 @@ class WizardState extends State<Wizard> {
     super.initState();
     _wizardNode = WizardNode(debugLabel: widget.debugLabel ?? 'WizardNode');
     _onPrev = widget.onPrev;
-    _wizardNode.attach(_wizardScopeState.context);
+    _focusAttachment = _wizardNode.attach(_wizardScopeState.context);
+  }
+
+  @override
+  void didUpdateWidget(covariant Wizard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _focusAttachment.detach();
+    _focusAttachment = _wizardNode.attach(_wizardScopeState.context);
   }
 
   @override
