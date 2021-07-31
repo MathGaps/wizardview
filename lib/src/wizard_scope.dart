@@ -72,6 +72,13 @@ class WizardScopeState extends State<WizardScope> {
   bool _paused = false;
 
   @override
+  void initState() {
+    super.initState();
+
+    _node.attach(context);
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
