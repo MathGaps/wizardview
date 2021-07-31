@@ -71,6 +71,13 @@ class WizardScopeState extends State<WizardScope> {
 
   bool _paused = false;
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    _node.attach(context).reparent();
+  }
+
   FocusAttachment attach(BuildContext? context, {FocusOnKeyCallback? onKey}) =>
       _node.attach(context, onKey: onKey);
 
