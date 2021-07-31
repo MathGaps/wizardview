@@ -102,14 +102,14 @@ class WizardState extends State<Wizard> {
     super.initState();
     _wizardNode = WizardNode(debugLabel: widget.debugLabel ?? 'WizardNode');
     _onPrev = widget.onPrev;
-    _wizardNode.attach(FocusManager.instance.rootScope.context);
+    _wizardNode.attach(_wizardScopeState.context);
   }
 
   @override
   void didUpdateWidget(Wizard oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    _wizardNode.attach(FocusManager.instance.rootScope.context).reparent();
+    _wizardNode.attach(_wizardScopeState.context).reparent();
   }
 
   @override
