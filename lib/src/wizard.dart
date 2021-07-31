@@ -176,6 +176,8 @@ class WizardState extends State<Wizard> {
 
   @override
   Widget build(BuildContext context) {
+    _focusAttachment.reparent();
+
     return Opacity(
       opacity: active ? 0 : 1,
       child: Focus(

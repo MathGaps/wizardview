@@ -264,6 +264,7 @@ class WizardScopeState extends State<WizardScope> {
     return _InheritedWizardScope(
       data: this,
       child: FocusScope(
+        autofocus: true,
         node: _node,
         child: FocusTraversalGroup(
           policy: widget.policy,
