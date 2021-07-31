@@ -71,6 +71,13 @@ class WizardScopeState extends State<WizardScope> {
 
   bool _paused = false;
 
+  FocusAttachment attach(BuildContext? context, {FocusOnKeyCallback? onKey}) =>
+      _node.attach(context, onKey: onKey);
+
+  void reparent(BuildContext? context,
+          {FocusOnKeyCallback? onKey, FocusNode? parent}) =>
+      _node.attach(context, onKey: onKey).reparent(parent: parent);
+
   /// The [WizardNode] currently in focus
   WizardNode? _focussedNode;
 
