@@ -108,10 +108,9 @@ class WizardState extends State<Wizard> {
   }
 
   @override
-  void didUpdateWidget(covariant Wizard oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    _focusAttachment.detach();
-    _focusAttachment = _wizardNode.attach(_wizardScopeState.context);
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _focusAttachment.reparent();
   }
 
   @override
