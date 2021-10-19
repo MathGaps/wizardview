@@ -9,6 +9,7 @@ class WizardRenderObjectWidget extends MultiChildRenderObjectWidget {
     required Widget background,
     required List<Widget> overlays,
     required this.active,
+    required this.showBackground,
     required Offset childOffset,
     this.childConstraints,
     Key? key,
@@ -16,8 +17,7 @@ class WizardRenderObjectWidget extends MultiChildRenderObjectWidget {
         super(
           key: key,
           children: [
-            WizardParentDataWidget(
-                id: WizardObjectId.background, child: background),
+            WizardParentDataWidget(id: WizardObjectId.background, child: background),
             WizardParentDataWidget(
               id: WizardObjectId.child,
               child: child,
@@ -27,6 +27,7 @@ class WizardRenderObjectWidget extends MultiChildRenderObjectWidget {
           ],
         );
 
+  final bool showBackground;
   final bool active;
   final Offset _childOffset;
   final Size? childConstraints;
@@ -38,6 +39,7 @@ class WizardRenderObjectWidget extends MultiChildRenderObjectWidget {
       childOffset: _childOffset,
       context: context,
       childConstraints: childConstraints,
+      showBackground: showBackground,
     );
   }
 
@@ -49,6 +51,7 @@ class WizardRenderObjectWidget extends MultiChildRenderObjectWidget {
     renderObject
       ..active = active
       ..childOffset = _childOffset
+      ..showBackground = showBackground
       ..childConstraints = childConstraints;
   }
 }
@@ -74,10 +77,12 @@ class _RenderWizardRenderObject extends RenderBox
         RenderBoxContainerDefaultsMixin<RenderBox, WizardParentData> {
   _RenderWizardRenderObject({
     required bool active,
+    required bool showBackground,
     required BuildContext context,
     required Offset childOffset,
     required Size? childConstraints,
   })  : _active = active,
+        _showBackground = showBackground,
         _childOffset = childOffset,
         _childConstraints = childConstraints,
         _screenSize = MediaQuery.of(context).size;
@@ -85,15 +90,29 @@ class _RenderWizardRenderObject extends RenderBox
   bool _active;
   bool get active => _active;
   set active(bool active) {
-    if (_active == active) return;
-    _active = active;
+    if (_active != active) {
+      _active = active;
+      markNeedsPaint();
+    }
+  }
+
+  bool _showBackground;
+  bool get showBackground => _showBackground;
+  set showBackground(bool showBackground) {
+    if (_showBackground != showBackground) {
+      print('Setting from $_showBackground to $showBackground');
+      _showBackground = showBackground;
+      markNeedsPaint();
+    }
   }
 
   Size? _childConstraints;
   Size? get childConstraints => _childConstraints;
   set childConstraints(Size? childConstraints) {
-    if (_childConstraints == childConstraints) return;
-    _childConstraints = childConstraints;
+    if (_childConstraints != childConstraints) {
+      _childConstraints = childConstraints;
+      markNeedsLayout();
+    }
   }
 
   Size _screenSize;
@@ -101,8 +120,10 @@ class _RenderWizardRenderObject extends RenderBox
   Offset _childOffset;
   Offset get childOffset => _childOffset;
   set childOffset(Offset childOffset) {
-    if (_childOffset == childOffset) return;
-    _childOffset = childOffset;
+    if (_childOffset != childOffset) {
+      _childOffset = childOffset;
+      markNeedsLayout();
+    }
   }
 
   /// ParentData
@@ -116,6 +137,7 @@ class _RenderWizardRenderObject extends RenderBox
   @override
   void paint(PaintingContext context, Offset offset) {
     RenderBox? child = firstChild;
+
     while (child != null) {
       final childParentData = child.parentData! as WizardParentData;
 
@@ -124,7 +146,9 @@ class _RenderWizardRenderObject extends RenderBox
           child.paint(context, childParentData.offset);
           break;
         case WizardObjectId.background:
-          if (active) child.paint(context, Offset.zero);
+          if (active && showBackground) {
+            child.paint(context, Offset.zero);
+          }
           break;
         case WizardObjectId.overlay:
           if (active) {
@@ -160,11 +184,9 @@ class _RenderWizardRenderObject extends RenderBox
 
       if (childParentData.id == WizardObjectId.overlay) {
         if (childParentData.alignment != null) {
-          Offset centeringOffset = Offset(
-              -childParentData.size!.width / 2 + childSize.width / 2,
+          Offset centeringOffset = Offset(-childParentData.size!.width / 2 + childSize.width / 2,
               -childParentData.size!.height / 2 + childSize.height / 2);
-          final alignmentFactor = Size(
-              childParentData.size!.width / 2 + childSize.width / 2,
+          final alignmentFactor = Size(childParentData.size!.width / 2 + childSize.width / 2,
               childParentData.size!.height / 2 + childSize.height / 2);
 
           childParentData.offset = _childOffset +
@@ -192,12 +214,10 @@ class _RenderWizardRenderObject extends RenderBox
       final childParentData = child.parentData! as WizardParentData;
 
       if (!dry) {
-        if (childParentData.id == WizardObjectId.child &&
-            _childConstraints != null) {
+        if (childParentData.id == WizardObjectId.child && _childConstraints != null) {
           child.layout(
             BoxConstraints.tightFor(
-                width: childParentData.constraints!.width,
-                height: childParentData.constraints!.height),
+                width: childParentData.constraints!.width, height: childParentData.constraints!.height),
             parentUsesSize: true,
           );
         } else {

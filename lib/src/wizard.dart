@@ -11,12 +11,7 @@ import 'wizard_scope.dart';
 
 class WizardNode = FocusNode with WizardNodeMixin;
 
-typedef WizardBuilder = Widget Function(
-    WizardScopeState state, BuildContext context);
-
-extension WizardNodeX on WizardNode {
-  WizardState? get state => context?.findAncestorStateOfType<WizardState>();
-}
+typedef WizardBuilder = Widget Function(WizardScopeState state, BuildContext context);
 
 /// Represents an indiviudal node in the Feature Discovery.
 ///
@@ -45,7 +40,7 @@ class Wizard extends StatefulWidget {
 
   final BuildContext? context;
 
-  /// The builder for the widget to be focused. Provides you with
+  /// The builder for the widget to be focused.
   final WizardBuilder builder;
 
   /// An optional [Widget] to be shown instead of `child` when this [Wizard] is
@@ -88,6 +83,8 @@ class WizardState extends State<Wizard> {
   WizardCallback? get onPrev => _onPrev;
 
   late FocusAttachment _focusAttachment;
+  late Widget _localWidget;
+  OverlayEntry? _overlayEntry;
 
   bool _active = false;
   bool get active => _active;
@@ -96,8 +93,19 @@ class WizardState extends State<Wizard> {
     setState(() => _active = active);
   }
 
-  WizardScopeState get _wizardScopeState =>
-      context.findAncestorStateOfType<WizardScopeState>()!;
+  bool _shouldShowBackground = true;
+  bool get shouldShowBackground => _shouldShowBackground;
+
+  /// Whether the [background] should be displayed in the [OverlayEntry].
+  /// Using this over setting [background] to null is more efficient and less condusive to error,
+  /// as we don't have to reinstantiate the [WizardRenderObjectWidget].
+  set shouldShowBackground(bool? shouldShow) {
+    if (shouldShow == _shouldShowBackground) return;
+    _shouldShowBackground = shouldShow ?? true;
+    _overlayEntry?.markNeedsBuild();
+  }
+
+  WizardScopeState get _wizardScopeState => context.findAncestorStateOfType<WizardScopeState>()!;
 
   @override
   void initState() {
@@ -130,7 +138,7 @@ class WizardState extends State<Wizard> {
   }
 
   OverlayEntry overlayEntry({Widget? background}) {
-    return OverlayEntry(
+    _overlayEntry = OverlayEntry(
       builder: (BuildContext overlayContext) {
         return Positioned(
           top: 0,
@@ -141,9 +149,9 @@ class WizardState extends State<Wizard> {
               active: active,
               // `overlays` have to pass their alignments inside the
               // [WizardRenderObjectWidget]
+              showBackground: shouldShowBackground,
               overlays: widget.overlays.map((overlay) {
-                final BuiltWizardOverlay? builtWizardOverlay =
-                    overlay.builder?.call(
+                final BuiltWizardOverlay? builtWizardOverlay = overlay.builder?.call(
                   _wizardScopeState,
                   _wizardNode.offset,
                   _wizardNode.size,
@@ -159,30 +167,34 @@ class WizardState extends State<Wizard> {
                   // constraints: widget.tightChildSize ? context.size : null,
                 );
               }).toList(),
-              child: widget.activeBuilder?.call(_wizardScopeState, context) ??
-                  widget.builder(_wizardScopeState, context),
+              child: _localWidget,
               childOffset: _wizardNode.offset,
               background: widget.background ??
                   _wizardScopeState.background ??
-                  Container(
-                    child: Text('[WizardScopeState] not found'),
-                  ),
+                  Container(child: Text('[WizardScopeState] not found')),
             ),
           ),
         );
       },
     );
+    return _overlayEntry!;
   }
 
   @override
   Widget build(BuildContext context) {
     _focusAttachment.reparent();
 
+    final localWidget = _localWidget = widget.builder(_wizardScopeState, context);
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      /// This implies that builds to `overlayEntry` will occur with 1 frame of lag.
+      _overlayEntry?.markNeedsBuild();
+    });
+
     return Opacity(
       opacity: active ? 0 : 1,
       child: Focus(
         focusNode: _wizardNode,
-        child: widget.builder(_wizardScopeState, context),
+        child: localWidget,
       ),
     );
   }
