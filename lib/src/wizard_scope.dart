@@ -55,9 +55,7 @@ class WizardScope extends StatefulWidget {
   final EdgeInsets actionsPadding;
 
   static WizardScopeState of(BuildContext context) {
-    return (context.dependOnInheritedWidgetOfExactType<_InheritedWizardScope>()
-            as _InheritedWizardScope)
-        .data;
+    return (context.dependOnInheritedWidgetOfExactType<_InheritedWizardScope>() as _InheritedWizardScope).data;
   }
 
   @override
@@ -93,6 +91,7 @@ class WizardScopeState extends State<WizardScope> {
 
   /// The [WizardNode] currently in focus
   WizardNode? _focussedNode;
+  WizardNode? get focussedNode => _focussedNode;
 
   /// Keeps track of the already visited [WizardNode]s
   final List<WizardNode> _history = [];
@@ -162,8 +161,7 @@ class WizardScopeState extends State<WizardScope> {
 
     FocusNode? focussedNode;
     do {
-      if (!_node.nextFocus() ||
-          history.contains(focussedNode = _node.focusedChild)) {
+      if (!_node.nextFocus() || history.contains(focussedNode = _node.focusedChild)) {
         _currentOverlayEntry = null;
         return end();
       }
@@ -181,11 +179,13 @@ class WizardScopeState extends State<WizardScope> {
 
   void pause() async {
     if (_currentOverlayEntry != null) _currentOverlayEntry?.remove();
+    _focussedNode?.state?.active = false;
     _paused = true;
   }
 
-  void unpause() async {
+  void resume() async {
     Overlay.of(context)?.insert(_currentOverlayEntry!, below: _actionsOverlay);
+    _focussedNode?.state?.active = true;
     _paused = false;
   }
 
@@ -285,6 +285,5 @@ class _InheritedWizardScope extends InheritedWidget {
   final WizardScopeState data;
 
   @override
-  bool updateShouldNotify(_InheritedWizardScope old) =>
-      old.data != data || old.child != child;
+  bool updateShouldNotify(_InheritedWizardScope old) => old.data != data || old.child != child;
 }
