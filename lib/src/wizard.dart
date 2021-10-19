@@ -167,7 +167,7 @@ class WizardState extends State<Wizard> {
                   // constraints: widget.tightChildSize ? context.size : null,
                 );
               }).toList(),
-              child: _localWidget,
+              child: widget.activeBuilder?.call(_wizardScopeState, overlayContext) ?? _localWidget,
               childOffset: _wizardNode.offset,
               background: widget.background ??
                   _wizardScopeState.background ??
