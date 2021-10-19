@@ -37,23 +37,19 @@ class Example1Page extends StatefulWidget {
   _Example1PageState createState() => _Example1PageState();
 }
 
-class _Example1PageState extends State<Example1Page>
-    with TickerProviderStateMixin {
+class _Example1PageState extends State<Example1Page> with TickerProviderStateMixin {
   late final List<String> _shuffledAlphabet;
   final Map<String, AnimationController> _controllers = {};
   final Map<String, Animation<double>> _animations = {};
   final Tween<double> _tween = Tween(begin: 0, end: 1.0);
+  bool paused = false;
 
   @override
   void initState() {
     super.initState();
 
-    _shuffledAlphabet = alphabet.characters.toList()..shuffle();
+    _shuffledAlphabet = alphabet.split('').toList()..shuffle();
   }
-
-  void _next(BuildContext context) => WizardScope.of(context).next();
-
-  void _prev(BuildContext context) => WizardScope.of(context).prev();
 
   @override
   Widget build(BuildContext context) {
@@ -81,9 +77,35 @@ class _Example1PageState extends State<Example1Page>
       // key: _key,
       policy: OrderedTraversalPolicy(),
       actions: (state) => Row(
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          ElevatedButton(
-              onPressed: () => state.end(), child: Text('Skip Tutorial')),
+          FloatingActionButton(
+            onPressed: () => state.prev(),
+            tooltip: 'Previous',
+            child: Icon(Icons.arrow_left),
+          ),
+          const SizedBox(width: 10),
+          FloatingActionButton(
+            onPressed: () => state.next(),
+            tooltip: 'Next',
+            child: Icon(Icons.arrow_right),
+          ),
+          const SizedBox(width: 10),
+          FloatingActionButton(
+            onPressed: () => state.focussedNode?.state?.shouldShowBackground =
+                !(state.focussedNode?.state?.shouldShowBackground ?? false),
+            tooltip: 'Toggle BG',
+            child: Icon(Icons.image),
+          ),
+          const SizedBox(width: 10),
+          FloatingActionButton(
+            onPressed: () {
+              paused ? state.resume() : state.pause();
+              setState(() => paused = !paused);
+            },
+            tooltip: paused ? 'Resume' : 'Pause',
+            child: Icon(paused ? Icons.play_arrow : Icons.pause),
+          ),
         ],
       ),
       onStart: (_) => showIntroductionDialog(),
@@ -94,11 +116,10 @@ class _Example1PageState extends State<Example1Page>
           title: Text('WizardView Example1'),
           actions: [
             IconButton(
-                onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (BuildContext context) => Example2Page())),
-                icon: Icon(Icons.refresh))
+              onPressed: () =>
+                  Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => Example2Page())),
+              icon: Icon(Icons.refresh),
+            )
           ],
         ),
         body: Builder(
@@ -118,8 +139,7 @@ class _Example1PageState extends State<Example1Page>
                     // final constrastingColour = interpolateColour(1 - p);
 
                     if (_controllers[c] == null) {
-                      final controller = AnimationController(
-                          vsync: this, duration: Duration(milliseconds: 300));
+                      final controller = AnimationController(vsync: this, duration: Duration(milliseconds: 300));
                       final animation = _tween.animate(
                         CurvedAnimation(
                           parent: controller,
@@ -148,51 +168,18 @@ class _Example1PageState extends State<Example1Page>
                             onTap: () => WizardScope.of(context).next(),
                             child: Text(
                               c,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headline4!
-                                  .copyWith(color: colour),
+                              style: Theme.of(context).textTheme.headline4!.copyWith(color: colour),
                             ),
                           ),
                           overlays: [
-                            // WizardOverlay.builder(
-                            //   builder: (_, Offset offset, Size size) {
-                            //     return BuiltWizardOverlay(
-                            //       child: Transform.scale(
-                            //         scale: _animations[c]!.value,
-                            //         child: Container(
-                            //           decoration: BoxDecoration(
-                            //               color: Theme.of(context).canvasColor,
-                            //               borderRadius: BorderRadius.only(
-                            //                 bottomRight: Radius.circular(10),
-                            //                 bottomLeft: Radius.circular(10),
-                            //                 topRight: Radius.circular(10),
-                            //               ),
-                            //               boxShadow: boxShadow),
-                            //           padding: padding,
-                            //           child: Text(
-                            //             'builder ${c.toUpperCase()}',
-                            //             style: textStyle,
-                            //           ),
-                            //         ),
-                            //       ),
-                            //       offset: offset + Offset(100, 20),
-                            //       size: Size(100, 100),
-                            //     );
-                            //   },
-                            // ),
                             WizardOverlay(
-                              alignment: Alignment.centerRight,
+                              alignment: Alignment.bottomCenter,
                               child: Transform.scale(
                                 scale: _animations[c]!.value,
                                 child: Container(
                                   decoration: BoxDecoration(
                                       color: Theme.of(context).canvasColor,
-                                      borderRadius: BorderRadius.only(
-                                        bottomRight: Radius.circular(10),
-                                        bottomLeft: Radius.circular(10),
-                                        topRight: Radius.circular(10),
-                                      ),
+                                      borderRadius: BorderRadius.circular(10),
                                       boxShadow: boxShadow),
                                   padding: padding,
                                   child: Text(
@@ -202,27 +189,6 @@ class _Example1PageState extends State<Example1Page>
                                 ),
                               ),
                             ),
-                            // WizardOverlay(
-                            //   alignment: Alignment.topCenter,
-                            //   child: Transform.scale(
-                            //     scale: _animations[c]!.value,
-                            //     child: Container(
-                            //       decoration: BoxDecoration(
-                            //           color: Theme.of(context).canvasColor,
-                            //           borderRadius: BorderRadius.only(
-                            //             topLeft: Radius.circular(10),
-                            //             bottomLeft: Radius.circular(10),
-                            //             topRight: Radius.circular(10),
-                            //           ),
-                            //           boxShadow: boxShadow),
-                            //       padding: padding,
-                            //       child: Text(
-                            //         'Step ${c.toUpperCase()}',
-                            //         style: textStyle,
-                            //       ),
-                            //     ),
-                            //   ),
-                            // ),
                           ],
                           onNodeStart: () => _controllers[c]!.forward(),
                           onNodeEnd: () => _controllers[c]!.reverse(),
@@ -234,24 +200,6 @@ class _Example1PageState extends State<Example1Page>
               ],
             );
           },
-        ),
-        floatingActionButton: Builder(
-          builder: (context) => Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              FloatingActionButton(
-                onPressed: () => _prev(context),
-                tooltip: 'Previous',
-                child: Icon(Icons.arrow_left),
-              ),
-              const SizedBox(width: 10),
-              FloatingActionButton(
-                onPressed: () => _next(context),
-                tooltip: 'Next',
-                child: Icon(Icons.arrow_right),
-              ),
-            ],
-          ),
         ),
       ),
     );
@@ -271,10 +219,7 @@ class _Example1PageState extends State<Example1Page>
             ),
           ],
           content: Column(
-            children: [
-              Text('WizardView'),
-              Text('Welcome to this WizardView example!')
-            ],
+            children: [Text('WizardView'), Text('Welcome to this WizardView example!')],
           ),
         );
       },
