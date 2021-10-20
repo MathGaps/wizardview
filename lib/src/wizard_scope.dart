@@ -178,15 +178,19 @@ class WizardScopeState extends State<WizardScope> {
   }
 
   void pause() async {
-    if (_currentOverlayEntry != null) _currentOverlayEntry?.remove();
-    _focussedNode?.state?.active = false;
-    _paused = true;
+    if (mounted) {
+      if (_currentOverlayEntry != null) _currentOverlayEntry?.remove();
+      _focussedNode?.state?.active = false;
+      _paused = true;
+    }
   }
 
   void resume() async {
-    Overlay.of(context)?.insert(_currentOverlayEntry!, below: _actionsOverlay);
-    _focussedNode?.state?.active = true;
-    _paused = false;
+    if (mounted) {
+      Overlay.of(context)?.insert(_currentOverlayEntry!, below: _actionsOverlay);
+      _focussedNode?.state?.active = true;
+      _paused = false;
+    }
   }
 
   /// Re-focus on the previously focused node
