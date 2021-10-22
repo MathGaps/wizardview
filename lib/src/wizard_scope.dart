@@ -54,8 +54,8 @@ class WizardScope extends StatefulWidget {
   /// Padding for the `actions` widget
   final EdgeInsets actionsPadding;
 
-  static WizardScopeState of(BuildContext context) {
-    return (context.dependOnInheritedWidgetOfExactType<_InheritedWizardScope>() as _InheritedWizardScope).data;
+  static WizardScopeState? of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<_InheritedWizardScope>()?.data;
   }
 
   @override

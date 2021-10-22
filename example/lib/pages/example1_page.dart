@@ -151,7 +151,7 @@ class _Example1PageState extends State<Example1Page> with TickerProviderStateMix
                         // setState rebuilds this widget but not the `OverlayEntry` inside `WizardScope`
                         setState(() {});
                         // This actually rebuilds the `OverlayEntry`
-                        WizardScope.of(context).animate();
+                        WizardScope.of(context)?.animate();
                       });
 
                       _controllers.putIfAbsent(c, () => controller);
@@ -165,7 +165,7 @@ class _Example1PageState extends State<Example1Page> with TickerProviderStateMix
                         child: Wizard(
                           debugLabel: c,
                           builder: (_, __) => GestureDetector(
-                            onTap: () => WizardScope.of(context).next(),
+                            onTap: () => WizardScope.of(context)?.next(),
                             child: Text(
                               c,
                               style: Theme.of(context).textTheme.headline4!.copyWith(color: colour),

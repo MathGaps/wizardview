@@ -122,18 +122,13 @@ class _Example2BodyState extends State<Example2Body> {
                   Wizard(
                     overlays: [
                       WizardOverlay.builder(
-                        builder: (WizardScopeState state, Offset offset,
-                                Size size) =>
-                            BuiltWizardOverlay(
-                                child: Text(
-                                  'This can be anything',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontStyle: FontStyle.italic,
-                                      fontSize: 24),
-                                ),
-                                offset: offset,
-                                size: size),
+                        builder: (WizardScopeState state, Offset offset, Size size) => BuiltWizardOverlay(
+                            child: Text(
+                              'This can be anything',
+                              style: TextStyle(color: Colors.white, fontStyle: FontStyle.italic, fontSize: 24),
+                            ),
+                            offset: offset,
+                            size: size),
                       ),
                       WizardOverlay(
                         alignment: Alignment(.6, -1),
@@ -211,7 +206,7 @@ class _Example2BodyState extends State<Example2Body> {
                     background: background,
                     builder: (_, __) => ElevatedButton(
                       onPressed: () {
-                        WizardScope.of(context).next();
+                        WizardScope.of(context)?.next();
                       },
                       child: Text('Submit'),
                     ),
