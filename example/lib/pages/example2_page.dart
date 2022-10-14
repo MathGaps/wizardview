@@ -16,13 +16,12 @@ class _Example2PageState extends State<Example2Page> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-      showInfoDialog();
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => showInfoDialog());
   }
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
         title: Text('WizardView Example2'),
@@ -31,11 +30,11 @@ class _Example2PageState extends State<Example2Page> {
         key: key,
         child: Example2Body(),
         background: Container(
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
+          height: size.height,
+          width: size.width,
           color: Colors.amber,
         ),
-        onEnd: (state) => showCongratulationsDialog(),
+        onEnd: (_) => showCongratulationsDialog(),
       ),
     );
   }
@@ -58,20 +57,16 @@ class _Example2PageState extends State<Example2Page> {
     );
   }
 
-  showCongratulationsDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) => AlertDialog(
-        title: Text('Congratulations!'),
-        actions: [
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: Text('Okay'),
-          )
-        ],
-      ),
-    );
-  }
+  void showCongratulationsDialog() => showDialog(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+          title: Text('Congratulations!'),
+          actions: [
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Okay'),
+            )
+          ],
+        ),
+      );
 }
